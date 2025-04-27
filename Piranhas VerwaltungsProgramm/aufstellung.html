@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aufstellung</title>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+        import { getDatabase, ref, get, child } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCFhS0aAgq0RQdgncI1lD1adbyVHGDgmcI",
+            authDomain: "videowand-43140.firebaseapp.com",
+            databaseURL: "https://videowand-43140-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "videowand-43140",
+            storageBucket: "videowand-43140.appspot.com",
+            messagingSenderId: "777250256351",
+            appId: "1:777250256351:web:f0700b48c645037c82006a"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+
+        async function loadAufstellung() {
+            const snapshot = await get(child(ref(db), "/"));
+            const container = document.getElementById("aufstellung-container");
+            if (!snapshot.exists() || !container) return;
+
+            const data = snapshot.val();
+            const players = data.players || {};
+            const aufstellung = data.aufstellungHeim || [];
+
+            const roles = {
+                "Stürmer": [],
+                "Verteidiger": [],
+                "Torhüter": [],
+                "Trainer": []
+            };
+
+            aufstellung.forEach(entry => {
+                const p = players[entry.playerId];
+                if (p && roles[entry.role]) {
+                    roles[entry.role].push({ ...p, role: entry.role });
+                }
+            });
+
+            // sortieren nach Spielernummer
+            for (const role in roles) {
+                roles[role].sort((a, b) => parseInt(a.number) - parseInt(b.number));
+            }
+
+            container.innerHTML = "";
+            for (const role in roles) {
+                if (roles[role].length === 0) continue;
+
+                const row = document.createElement("div");
+                row.className = `grid justify-center grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-${role === "Stürmer" ? "3" : "2"} gap-6`;
+
+
+                roles[role].forEach((player, index) => {
+                    const card = document.createElement("div");
+                    card.className = "w-72 bg-white shadow-md rounded-xl p-4 flex items-center gap-4 border border-gray-200";
+
+                    card.innerHTML = `
+            <img src="https://api.hockeydata.net/img/icehockey/ebel/team-logos/15882/13057.png" alt="Trikot" class="w-12 h-12 object-contain" />
+            <div>
+              <div class="text-lg font-bold text-gray-800">#${player.number}</div>
+              <div class="text-sm text-gray-600">${player.firstName} ${player.lastName}</div>
+              <div class="text-xs text-gray-400">${role}</div>
+            </div>
+          `;
+
+                    row.appendChild(card);
+                });
+
+                const title = document.createElement("h2");
+                title.className = "text-2xl font-semibold text-gray-800 mb-4 text-center";
+                title.innerText = role;
+
+                container.appendChild(title);
+                container.appendChild(row);
+            }
+        }
+
+        window.addEventListener("DOMContentLoaded", loadAufstellung);
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gradient-to-br from-blue-50 via-white to-blue-100 min-h-screen">
+    <!-- HEADER -->
+    <header class="bg-white shadow-md p-6 sticky top-0 z-10">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between">
+            <div class="flex flex-col sm:flex-row sm:items-center gap-4 mb-4 sm:mb-0">
+                <img src="assets/images/logo.png" class="w-12 h-12" alt="Logo" />
+                <div>
+                    <h1 class="text-2xl sm:text-3xl font-bold text-gray-900">Starting Six</h1>
+                    <a href="index.html" class="text-blue-500 text-sm hover:underline mt-1">Zur Startseite</a>
+                </div>
+            </div>
+            <nav class="flex gap-2 sm:gap-4 items-center mt-2 sm:mt-0">
+                <a href="starting-six.html" class="nav-link">Starting Six</a>
+                <a href="players.html" class="nav-link">Spieler</a>
+                <a href="aufstellung.html" class="nav-link">Aufstellung</a>
+                <a href="spiele.html" class="nav-link">alle Spiele</a>
+                <a href="login.html"
+                    class="px-4 py-2 rounded-full bg-blue-600 text-white hover:bg-blue-700 transition">Login</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="p-6 max-w-7xl mx-auto">
+        <div id="aufstellung-container" class="mt-10"></div>
+    </main>
+
+    <!-- NAV-LINK HIGHLIGHT -->
+    <script>
+        const path = window.location.pathname.split("/").pop();
+        document.querySelectorAll(".nav-link").forEach(link => {
+            if (link.getAttribute("href") === path) {
+                link.classList.add("bg-blue-100", "text-blue-800", "font-semibold", "rounded", "px-3", "py-1");
+            } else {
+                link.classList.add("text-gray-600", "hover:text-blue-600", "transition");
+            }
+        });
+    </script>
+</body>
+
+</html>

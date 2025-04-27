@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Videowand Steuerung</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <header>
+        <h1>Videowand Steuerung</h1>
+        <button id="logoutButton" style="display: none;">Logout</button>
+    </header>
+
+    <div id="loginSection" class="login-form">
+        <h2>Bitte anmelden</h2>
+        <input type="email" id="email" placeholder="E-Mail" />
+        <input type="password" id="password" placeholder="Passwort" />
+        <button id="loginButton">Anmelden</button>
+        <div id="loginError" class="error-message" style="display: none;">Falsche Anmeldedaten. Bitte versuche es
+            erneut.</div>
+    </div>
+
+    <div id="mainContent" class="container" style="display: none;">
+        <div class="section">
+            <h2>Neues Spiel hinzufügen</h2>
+            <div class="new-game-form">
+                <div class="form-group">
+                    <label for="newHomeTeam">Heimteam:</label>
+                    <input type="text" id="newHomeTeam" placeholder="Name des Heimteams" readonly>
+                    <input type="hidden" id="newHomeLogo">
+                    <button type="button" class="load-team-button" data-team-type="home">Team laden</button>
+                </div>
+                <div class="form-group">
+                    <label for="newAwayTeam">Auswärtsteam:</label>
+                    <input type="text" id="newAwayTeam" placeholder="Name des Auswärtsteams" readonly>
+                    <input type="hidden" id="newAwayLogo">
+                    <button type="button" class="load-team-button" data-team-type="away">Team laden</button>
+                </div>
+                <div class="form-group">
+                    <label for="newGameTime">Anbully-Zeit:</label>
+                    <input type="datetime-local" id="newGameTime" placeholder="Anbully-Zeit eingeben">
+                </div>
+                <button id="addGameButton">Spiel hinzufügen</button>
+                <div id="addGameError" class="error-message" style="display: none;">Bitte alle Felder ausfüllen.</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Neues Team hinzufügen</h2>
+            <div class="new-team-form">
+                <div class="form-group">
+                    <label for="newTeamName">Teamname:</label>
+                    <input type="text" id="newTeamName" placeholder="Name des Teams">
+                </div>
+                <div class="form-group">
+                    <label for="newTeamLogo">Teamlogo-URL:</label>
+                    <input type="text" id="newTeamLogo" placeholder="URL des Teamlogos">
+                </div>
+                <button id="addTeamButton">Team hinzufügen</button>
+                <div id="addTeamError" class="error-message">Bitte alle Felder ausfüllen.</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Spielstände ändern</h2>
+            <div id="stadiums"></div>
+        </div>
+    </div>
+
+    <div id="deleteModal" class="modal">
+        <div class="modal-content">
+            <h3>Spiel wirklich löschen?</h3>
+            <button class="cancel-btn" onclick="closeDeleteModal()">Abbrechen</button>
+            <button class="confirm-btn" onclick="confirmDelete()">Bestätigen</button>
+        </div>
+    </div>
+
+    <div id="teamSelectModal" class="modal">
+        <div class="modal-content">
+            <h3>Team auswählen</h3>
+            <div id="teamList"></div>
+            <button class="close-btn" onclick="closeTeamSelectModal()">Schließen</button>
+        </div>
+    </div>
+
+    <div id="penaltyModal" class="modal">
+        <div class="modal-content">
+            <h2>Penalty schiessen</h2>
+            <div id="penaltyContainer">
+                <h3>Heim Team</h3>
+                <div id="homePenaltyShots" class="penalty-shots">
+                    <div class="penalty-shot">
+                        <button class="penalty-shot-button hit" onclick="setPenaltyShot('home', 1, true)">Schuss 1
+                            getroffen</button>
+                        <button class="penalty-shot-button miss" onclick="setPenaltyShot('home', 1, false)">Schuss 1
+                            verschossen</button>
+                    </div>
+                    <div class="penalty-shot">
+                        <button class="penalty-shot-button hit" onclick="setPenaltyShot('home', 2, true)">Schuss 2
+                            getroffen</button>
+                        <button class="penalty-shot-button miss" onclick="setPenaltyShot('home', 2, false)">Schuss 2
+                            verschossen</button>
+                    </div>
+                    <div class="penalty-shot">
+                        <button class="penalty-shot-button hit" onclick="setPenaltyShot('home', 3, true)">Schuss 3
+                            getroffen</button>
+                        <button class="penalty-shot-button miss" onclick="setPenaltyShot('home', 3, false)">Schuss 3
+                            verschossen</button>
+                    </div>
+                </div>
+
+                <h3>Auswärts Team</h3>
+                <div id="awayPenaltyShots" class="penalty-shots">
+                    <div class="penalty-shot">
+                        <button class="penalty-shot-button hit" onclick="setPenaltyShot('away', 1, true)">Schuss 1
+                            getroffen</button>
+                        <button class="penalty-shot-button miss" onclick="setPenaltyShot('away', 1, false)">Schuss 1
+                            verschossen</button>
+                    </div>
+                    <div class="penalty-shot">
+                        <button class="penalty-shot-button hit" onclick="setPenaltyShot('away', 2, true)">Schuss 2
+                            getroffen</button>
+                        <button class="penalty-shot-button miss" onclick="setPenaltyShot('away', 2, false)">Schuss 2
+                            verschossen</button>
+                    </div>
+                    <div class="penalty-shot">
+                        <button class="penalty-shot-button hit" onclick="setPenaltyShot('away', 3, true)">Schuss 3
+                            getroffen</button>
+                        <button class="penalty-shot-button miss" onclick="setPenaltyShot('away', 3, false)">Schuss 3
+                            verschossen</button>
+                    </div>
+                </div>
+            </div>
+            <button onclick="resetAllPenaltyShots()">Alle Punkte leeren</button>
+            <button onclick="closePenaltyModal()">Schließen</button>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-database-compat.js"></script>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCFhS0aAgq0RQdgncI1lD1adbyVHGDgmcI",
+            authDomain: "videowand-43140.firebaseapp.com",
+            databaseURL: "https://videowand-43140-default-rtdb.europe-west1.firebasedatabase.app/",
+            projectId: "videowand-43140",
+            storageBucket: "videowand-43140.appspot.com",
+            messagingSenderId: "777250256351",
+            appId: "1:777250256351:web:f0700b48c645037c82006a"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        const loginSection = document.getElementById("loginSection");
+        const mainContent = document.getElementById("mainContent");
+        const logoutButton = document.getElementById("logoutButton");
+        const loginButton = document.getElementById("loginButton");
+        const addGameButton = document.getElementById("addGameButton");
+        const stadiumsDiv = document.getElementById("stadiums");
+        const loginError = document.getElementById("loginError");
+        const addGameError = document.getElementById("addGameError");
+        const deleteModal = document.getElementById("deleteModal");
+        const teamSelectModal = document.getElementById("teamSelectModal");
+        const teamListDiv = document.getElementById("teamList");
+
+        let gameToDelete = null;
+        let activeGameId = null;
+        let currentTeamType = null;
+
+        loginButton.addEventListener("click", function () {
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+
+            if (email && password) {
+                auth.signInWithEmailAndPassword(email, password)
+                    .then(() => {
+                        loginSection.style.display = "none";
+                        mainContent.style.display = "block";
+                        logoutButton.style.display = "inline-block";
+                        loginError.style.display = "none";
+                    })
+                    .catch((error) => {
+                        loginError.style.display = "block";
+                        loginError.textContent = "Falsche Anmeldedaten. Bitte versuche es erneut.";
+                    });
+            } else {
+                loginError.style.display = "block";
+                loginError.textContent = "Bitte E-Mail und Passwort eingeben.";
+            }
+        });
+
+        logoutButton.addEventListener("click", () => {
+            auth.signOut().then(() => {
+                loginSection.style.display = "block";
+                mainContent.style.display = "none";
+                logoutButton.style.display = "none";
+            });
+        });
+
+        function openPenaltyModal() {
+            document.getElementById("penaltyModal").style.display = "block";
+        }
+
+        function closePenaltyModal() {
+            document.getElementById("penaltyModal").style.display = "none";
+        }
+
+        async function setPenaltyShot(team, shotNumber, hit) {
+            try {
+                const path = `stadiums/${activeGameId}/penaltyShots/${team}/shot${shotNumber}`;
+                await firebase.database().ref(path).set(hit);
+                console.log(`${team} penalty shot ${shotNumber} marked as ${hit ? "hit" : "miss"}`);
+            } catch (error) {
+                console.error("Error setting penalty shot:", error);
+            }
+        }
+
+        async function resetAllPenaltyShots() {
+            try {
+                const updates = {
+                    [`stadiums/${activeGameId}/penaltyShots/home/shot1`]: "",
+                    [`stadiums/${activeGameId}/penaltyShots/home/shot2`]: "",
+                    [`stadiums/${activeGameId}/penaltyShots/home/shot3`]: "",
+                    [`stadiums/${activeGameId}/penaltyShots/away/shot1`]: "",
+                    [`stadiums/${activeGameId}/penaltyShots/away/shot2`]: "",
+                    [`stadiums/${activeGameId}/penaltyShots/away/shot3`]: ""
+                };
+                await firebase.database().ref().update(updates);
+                console.log("All penalty shots reset to neutral.");
+            } catch (error) {
+                console.error("Error resetting penalty shots:", error);
+            }
+        }
+        addGameButton.addEventListener("click", () => {
+            const newHomeTeam = document.getElementById("newHomeTeam").value;
+            const newAwayTeam = document.getElementById("newAwayTeam").value;
+            const newHomeLogo = document.getElementById("newHomeLogo").value;
+            const newAwayLogo = document.getElementById("newAwayLogo").value;
+            const newGameTime = document.getElementById("newGameTime").value;
+
+            if (newHomeTeam && newAwayTeam && newHomeLogo && newAwayLogo && newGameTime) {
+                const newGame = {
+                    home: { name: newHomeTeam, logo: newHomeLogo, score: 0 },
+                    away: { name: newAwayTeam, logo: newAwayLogo, score: 0 },
+                    gameTime: newGameTime, periode: "Bitte Eintragen!"
+                };
+
+                const gamesRef = database.ref("stadiums");
+                gamesRef.push(newGame);
+                addGameError.style.display = "none";
+
+                document.getElementById("newHomeTeam").value = '';
+                document.getElementById("newHomeLogo").value = '';
+                document.getElementById("newAwayTeam").value = '';
+                document.getElementById("newAwayLogo").value = '';
+                document.getElementById("newGameTime").value = '';
+            } else {
+                addGameError.style.display = "block";
+            }
+        });
+
+        function renderStadiums(stadiums) {
+            const activeGame = activeGameId ? stadiums[activeGameId] : null;
+            const otherGames = Object.keys(stadiums)
+                .filter(id => id !== activeGameId)
+                .reduce((obj, key) => {
+                    obj[key] = stadiums[key];
+                    return obj;
+                }, {});
+
+            stadiumsDiv.innerHTML = "";
+
+            if (activeGame) {
+                stadiumsDiv.appendChild(createStadiumDiv(activeGameId, activeGame, true));
+            }
+
+            for (const id in otherGames) {
+                stadiumsDiv.appendChild(createStadiumDiv(id, otherGames[id], false));
+            }
+        }
+
+        function createStadiumDiv(id, stadium, isActive) {
+            if (!stadium || !stadium.home || !stadium.away) {
+                console.error("Ungültiges Stadion-Objekt:", stadium);
+                return document.createElement("div");
+            }
+
+            const stadiumDiv = document.createElement("div");
+            stadiumDiv.classList.add("stadium");
+            if (isActive) stadiumDiv.classList.add("active");
+
+            const countdownElement = document.createElement("span");
+            countdownElement.classList.add("countdown");
+
+            function updateCountdown() {
+                let countdownText = "Nicht festgelegt";
+
+                if (stadium.gameTime) {
+                    const now = new Date();
+                    const gameDate = new Date(stadium.gameTime);
+
+                    const timeDiff = gameDate - now;
+
+                    if (timeDiff > 24 * 60 * 60 * 1000) {
+                        const dateString = gameDate.toLocaleDateString("de-DE", {
+                            year: "numeric",
+                            month: "numeric",
+                            day: "numeric",
+                        });
+                        countdownText = `Spiel am ${dateString}`;
+                    } else if (timeDiff > 0) {
+                        const hoursLeft = Math.floor(timeDiff / (1000 * 60 * 60));
+                        const minutesLeft = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+                        const secondsLeft = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+                        countdownText = `${padZero(hoursLeft)}:${padZero(minutesLeft)}:${padZero(secondsLeft)}`;
+                    } else {
+                        countdownElement.style.backgroundColor = "#f44336";
+                        countdownText = "Spiel läuft";
+                    }
+                }
+
+                countdownElement.textContent = countdownText;
+            }
+
+            setInterval(updateCountdown, 1000);
+
+            const periods = ["1. Drittel", "1. Pause", "2. Drittel", "2. Pause", "3. Drittel", "Overtime", "Penaltyschießen", "Endstand"];
+
+            function highlightActiveButton() {
+                const activePeriod = stadium.periode;
+                periodDiv.querySelectorAll("button").forEach((button) => {
+                    if (button.textContent === activePeriod) {
+                        button.style.backgroundColor = '#f44336';
+                    } else {
+                        button.style.backgroundColor = '#388e3c';
+                    }
+                });
+            }
+
+            stadiumDiv.innerHTML = `
+        <div class="team">
+            <img src="${stadium.home.logo}" alt="${stadium.home.name}">
+            <span>${stadium.home.name}</span>
+            <div class="score-buttons">
+                <button onclick="updateScore('${id}', 'home', -1)">-</button>
+                <span id="${id}-home-score">${stadium.home.score}</span>
+                <button onclick="updateScore('${id}', 'home', 1)">+</button>
+            </div>
+        </div>
+        <div class="team">
+            <img src="${stadium.away.logo}" alt="${stadium.away.name}">
+            <span>${stadium.away.name}</span>
+            <div class="score-buttons">
+                <button onclick="updateScore('${id}', 'away', -1)">-</button>
+                <span id="${id}-away-score">${stadium.away.score}</span>
+                <button onclick="updateScore('${id}', 'away', 1)">+</button>
+            </div>
+        </div>
+        <div class="countdown-container"></div>
+        <button class="set-active ${isActive ? "active" : ""}" onclick="setActiveGame('${id}')">
+            ${isActive ? "Aktiv" : "Als aktiv markieren"}
+        </button>
+        <button class="delete-btn" onclick="openDeleteModal('${id}')">Spiel löschen</button>
+    `;
+
+            const periodDiv = document.createElement("div");
+            periodDiv.classList.add("period-buttons-container");
+
+            periodDiv.innerHTML = `
+    ${periods
+        .map((period) => {
+            // Überprüfen, ob die Periode "Penaltyschießen" ist
+            if (isActive && period === "Penaltyschießen") {
+                return `<button onclick="openPenaltyModal(); updatePeriod('${id}', '${period}')">${period}</button>`;
+            } else {
+                return `<button onclick="updatePeriod('${id}', '${period}')">${period}</button>`;
+            }
+        })
+        .join("")}
+`;
+
+            stadiumDiv.querySelector(".countdown-container").appendChild(countdownElement);
+
+            periodDiv.querySelectorAll("button").forEach((button) => {
+                button.addEventListener("click", () => {
+                    highlightActiveButton();
+                });
+            });
+
+            highlightActiveButton();
+
+            const container = document.createElement("div");
+            container.classList.add("stadium-container");
+            container.appendChild(stadiumDiv);
+            container.appendChild(periodDiv);
+
+            updateCountdown();
+
+            return container;
+        }
+
+        function padZero(num) {
+            return num < 10 ? `0${num}` : num;
+        }
+
+        function updatePeriod(gameId, period) {
+            const gameRef = firebase.database().ref(`stadiums/${gameId}/periode`);
+
+            console.log(`Versuche Drittel für Spiel ${gameId} auf ${period} zu setzen...`);
+
+            gameRef.transaction(() => period)
+                .then(() => {
+                    console.log(`Drittel erfolgreich auf ${period} gesetzt.`);
+                })
+                .catch((error) => {
+                    console.error("Fehler beim Aktualisieren des Drittels: ", error);
+                });
+        }
+
+        function updateScore(id, team, change) {
+            const scoreRef = database.ref(`stadiums/${id}/${team}/score`);
+            scoreRef.transaction((currentScore) => (currentScore || 0) + change);
+        }
+
+        function openDeleteModal(id) {
+            gameToDelete = id;
+            deleteModal.style.display = "flex";
+        }
+
+        function setActiveGame(id) {
+            activeGameId = id;
+            database.ref("stadiums/activeGame").set(id);
+        }
+
+        function confirmDelete() {
+            if (gameToDelete) {
+                const gameRef = database.ref(`stadiums/${gameToDelete}`);
+                gameRef.remove().then(() => {
+                    deleteModal.style.display = "none";
+                    gameToDelete = null;
+                });
+            }
+        }
+
+        function closeDeleteModal() {
+            deleteModal.style.display = "none";
+            gameToDelete = null;
+        }
+
+        const loadTeamButtons = document.querySelectorAll(".load-team-button");
+
+        loadTeamButtons.forEach(button => {
+            button.addEventListener("click", () => {
+                currentTeamType = button.getAttribute("data-team-type");
+                openTeamSelectModal();
+            });
+        });
+
+        function openTeamSelectModal() {
+            teamSelectModal.style.display = "flex";
+            populateTeamList();
+        }
+
+        function closeTeamSelectModal() {
+            teamSelectModal.style.display = "none";
+            teamListDiv.innerHTML = '';
+            currentTeamType = null;
+        }
+
+        function populateTeamList() {
+            const teamsRef = database.ref("teams");
+            teamsRef.once("value", (snapshot) => {
+                const teams = snapshot.val();
+                teamListDiv.innerHTML = "";
+
+                if (teams) {
+                    Object.keys(teams).forEach(key => {
+                        const team = teams[key];
+                        const teamItem = document.createElement("div");
+                        teamItem.classList.add("team-item");
+                        teamItem.innerHTML = `
+                            <img src="${team.logo}" alt="${team.name}">
+                            <span>${team.name}</span>
+                        `;
+                        teamItem.addEventListener("click", () => {
+                            selectTeam(team);
+                        });
+                        teamListDiv.appendChild(teamItem);
+                    });
+                } else {
+                    teamListDiv.innerHTML = "<p>Keine Teams verfügbar.</p>";
+                }
+            });
+        }
+
+        function selectTeam(team) {
+            if (currentTeamType === 'home') {
+                document.getElementById("newHomeTeam").value = team.name;
+                document.getElementById("newHomeLogo").value = team.logo;
+            } else if (currentTeamType === 'away') {
+                document.getElementById("newAwayTeam").value = team.name;
+                document.getElementById("newAwayLogo").value = team.logo;
+            }
+            closeTeamSelectModal();
+        }
+
+        const addTeamButton = document.getElementById("addTeamButton");
+        const addTeamError = document.getElementById("addTeamError");
+        const teamsRef = database.ref("teams");
+
+        addTeamButton.addEventListener("click", () => {
+            const newTeamName = document.getElementById("newTeamName").value.trim();
+            const newTeamLogo = document.getElementById("newTeamLogo").value.trim();
+
+            if (newTeamName && newTeamLogo) {
+                const newTeam = {
+                    name: newTeamName,
+                    logo: newTeamLogo
+                };
+
+                teamsRef.push(newTeam)
+                    .then(() => {
+                        addTeamError.style.display = "none";
+                        document.getElementById("newTeamName").value = '';
+                        document.getElementById("newTeamLogo").value = '';
+                        populateTeamSelects();
+                    })
+                    .catch(() => {
+                        addTeamError.style.display = "block";
+                        addTeamError.textContent = "Fehler beim Hinzufügen des Teams.";
+                    });
+            } else {
+                addTeamError.style.display = "block";
+                addTeamError.textContent = "Bitte alle Felder ausfüllen.";
+            }
+        });
+
+        function populateTeamSelects() {
+            const homeTeamSelect = document.getElementById("newHomeTeam");
+            const awayTeamSelect = document.getElementById("newAwayTeam");
+
+            homeTeamSelect.innerHTML = '<option value="">Bitte wählen</option>';
+            awayTeamSelect.innerHTML = '<option value="">Bitte wählen</option>';
+
+            teamsRef.once("value", (snapshot) => {
+                snapshot.forEach((childSnapshot) => {
+                    const team = childSnapshot.val();
+                    const optionHome = document.createElement("option");
+                    optionHome.value = team.name;
+                    optionHome.textContent = team.name;
+                    homeTeamSelect.appendChild(optionHome);
+
+                    const optionAway = document.createElement("option");
+                    optionAway.value = team.name;
+                    optionAway.textContent = team.name;
+                    awayTeamSelect.appendChild(optionAway);
+                });
+            });
+        }
+
+        populateTeamSelects();
+
+        window.addEventListener("click", function (event) {
+            if (event.target == teamSelectModal) {
+                closeTeamSelectModal();
+            }
+            if (event.target == deleteModal) {
+                closeDeleteModal();
+            }
+        });
+
+        database.ref("stadiums").on("value", (snapshot) => {
+            const data = snapshot.val();
+            renderStadiums(data);
+            console.log(data)
+        });
+
+        database.ref("stadiums/activeGame").on("value", (snapshot) => {
+            activeGameId = snapshot.val();
+            database.ref("stadiums").once("value").then((snapshot) => {
+                const data = snapshot.val();
+                renderStadiums(data);
+            });
+        });
+    </script>
+</body>
+
+</html>

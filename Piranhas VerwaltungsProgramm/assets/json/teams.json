@@ -1,0 +1,137 @@
+[
+	{
+		"id" : 2,
+		"name" : "Halle Saale Bulls",
+		"logo" : "uploads/Saale Bulls Halle.png"
+	},
+	{
+		"id" : 3,
+		"name" : "Herner EV Miners",
+		"logo" : "uploads/Herner EV Miners.png"
+	},
+	{
+		"id" : 4,
+		"name" : "Hannover Indians",
+		"logo" : "uploads/Hannover Indians.png"
+	},
+	{
+		"id" : 5,
+		"name" : "TecArt Black Dragons Erfurt",
+		"logo" : "uploads/TecArt Black Dragons Erfurt.png"
+	},
+	{
+		"id" : 6,
+		"name" : "Hannover Scorpions",
+		"logo" : "uploads/Hannover Scorpions.png"
+	},
+	{
+		"id" : 7,
+		"name" : "ESC Wohnbau Moskitos Essen",
+		"logo" : "uploads/ESC Wohnbau Moskitos Essen.png"
+	},
+	{
+		"id" : 8,
+		"name" : "Tilburg Trappers",
+		"logo" : "uploads/Tilburg Trappers.png"
+	},
+	{
+		"id" : 9,
+		"name" : "KSW Icefighters Leipzig",
+		"logo" : "uploads/KSW Icefighters Leipzig.png"
+	},
+	{
+		"id" : 10,
+		"name" : "Hammer Eisbären",
+		"logo" : "uploads/Hammer Eisbären.png"
+	},
+	{
+		"id" : 11,
+		"name" : "Füchse Duisburg",
+		"logo" : "uploads/Füchse Duisburg.png"
+	},
+	{
+		"id" : 12,
+		"name" : "Herforder EV",
+		"logo" : "uploads/Herforder EV.png"
+	},
+	{
+		"id" : 99,
+		"name" : "Schiedsrichter",
+		"logo" : "uploads/DEB-Logo_68px.png"
+	},
+	{
+		"id" : 101,
+		"name" : "Rostock Piranhas",
+		"logo" : "uploads/rostock.png"
+	},
+	{
+		"id" : 102,
+		"name" : "onesto Tigers Bayreuth",
+		"logo" : "uploads/55682.png"
+	},
+	{
+		"id" : 103,
+		"name" : "EV Füssen",
+		"logo" : "uploads/20913.png"
+	},
+	{
+		"id" : 104,
+		"name" : "Heilbronner Falken",
+		"logo" : "uploads/47011.png"
+	},
+	{
+		"id" : 105,
+		"name" : "Bietigheim Steelers",
+		"logo" : "uploads/54744.png"
+	},
+	{
+		"id" : 106,
+		"name" : "ECDC Memmingen Indians",
+		"logo" : "uploads/13068.png"
+	},
+	{
+		"id" : 107,
+		"name" : "Deggendorfer SC",
+		"logo" : "uploads/20912.png"
+	},
+	{
+		"id" : 108,
+		"name" : "Höchstadter EC",
+		"logo" : "uploads/13070.png"
+	},
+	{
+		"id" : 109,
+		"name" : "Tölzer Löwen",
+		"logo" : "uploads/38675.png"
+	},
+	{
+		"id" : 110,
+		"name" : "Stuttgarter EC",
+		"logo" : "uploads/47390.png"
+	},
+	{
+		"id" : 111,
+		"name" : "SC Riessersee",
+		"logo" : "uploads/13061.png"
+	},
+	{
+		"id" : 112,
+		"name" : "EV Lindau Islanders",
+		"logo" : "uploads/13067.png"
+	},
+	{
+		"id" : 113,
+		"name" : "EHF Passau Black Hawks",
+		"logo" : "uploads/28093.png"
+	},
+	{
+		"id" : 114,
+		"name" : "EC Peiting",
+		"logo" : "uploads/13063.png"
+	},
+	{
+		"id" : 115,
+		"name" : "Mediateam",
+		"logo" : "uploads/rostock.png"
+	}
+]
