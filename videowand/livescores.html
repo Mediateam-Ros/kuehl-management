@@ -65,68 +65,49 @@
     <div id="livescore">Lädt...</div>
 
     <script>
-        async function loadGames() {
-            try {
-                const response = await fetch('/.netlify/functions/getScores');
-                const gamesData = await response.json();
+    async function loadGames() {
+        try {
+            // Hole die Spieldaten von der Netlify-Funktion
+            const response = await fetch('/.netlify/functions/getScores');
+            const gamesData = await response.json();
 
-                if (!gamesData || gamesData.length === 0) {
-                    document.getElementById("livescore").innerText = "Keine aktiven Spiele verfügbar.";
-                    return;
-                }
+            if (!gamesData || gamesData.length === 0) {
+                document.getElementById("livescore").innerText = "Keine aktiven Spiele verfügbar.";
+                return;
+            }
 
-                const livescoreContainer = document.getElementById("livescore");
-                livescoreContainer.innerHTML = '';
+            const livescoreContainer = document.getElementById("livescore");
+            livescoreContainer.innerHTML = '';
 
-                const now = new Date();
-
-                gamesData.sort((a, b) => {
-                    const timeA = new Date(a.gameTime);
-                    const timeB = new Date(b.gameTime);
-                    return timeA - timeB;
-                });
-
-                for (const game of gamesData) {
-                    if (game && game.gameTime && game.home && game.away) {
-                        const gameTime = new Date(game.gameTime);
-                        const homeTeam = game.home.name || "Heim";
-                        const awayTeam = game.away.name || "Gast";
-                        const homeScore = game.home.score !== undefined ? game.home.score : 0;
-                        const awayScore = game.away.score !== undefined ? game.away.score : 0;
-                        const homeLogo = game.home.logo || '';
-                        const awayLogo = game.away.logo || '';
-
-                        const formattedTime = `${gameTime.getHours()}:${String(gameTime.getMinutes()).padStart(2, '0')} Uhr`;
-
-                        const gameStatus = gameTime >= now
-                            ? formattedTime
-                            : game.periode || "Unbekannte Periode";
-
-                        const gameElement = document.createElement("div");
-                        gameElement.classList.add("game-card");
-
-                        gameElement.innerHTML = `
-                    <img src="${homeLogo}" class="team-logo" alt="${homeTeam} Logo">
-                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; width: 100%;">
-                        <div class="team-score">${homeScore} - ${awayScore}</div>
-                        <div class="score-details">${gameStatus}</div>
+            // Spieldaten anzeigen
+            gamesData.forEach((game, index) => {
+                const gameElement = document.createElement("div");
+                gameElement.classList.add("game-card");
+                gameElement.innerHTML = `
+                    <div class="game-container">
+                        <div class="game-header">
+                            <img src="${game.homeimage1}" class="team-logo" alt="${game.home1} Logo">
+                            <span class="game-time">${game.drittel1 || "Spiel noch nicht gestartet"}</span>
+                            <img src="${game.awayimage1}" class="team-logo" alt="${game.away1} Logo">
+                        </div>
+                        <div class="game-details">
+                            <span class="team-score">${game.score1}</span>
+                        </div>
                     </div>
-                    <img src="${awayLogo}" class="team-logo" alt="${awayTeam} Logo">
                 `;
 
-                        livescoreContainer.appendChild(gameElement);
-                    }
-                }
-            } catch (error) {
-                console.error('Fehler beim Laden der Spieldaten:', error);
-                document.getElementById("livescore").innerText = "Fehler beim Laden der Spieldaten.";
-            }
+                // Appendi das Spiel ins Container-Element
+                livescoreContainer.appendChild(gameElement);
+            });
+        } catch (error) {
+            console.error('Fehler beim Laden der Spieldaten:', error);
+            document.getElementById("livescore").innerText = "Fehler beim Laden der Spieldaten.";
         }
+    }
 
-        setInterval(loadGames, 10000);
-        loadGames();
-
-    </script>
+    setInterval(loadGames, 10000);  // Alle 10 Sekunden neu laden
+    loadGames();  // Initialer Abruf der Daten
+</script>
 </body>
 
 </html>
