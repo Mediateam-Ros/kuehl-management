@@ -9,22 +9,35 @@ exports.handler = async function(event, context) {
 
         // Sicherstellen, dass wir nur die ersten 6 Spiele holen
         const formattedData = gamesData.slice(0, 6).map(game => {
-            // Extrahiere die Drittel-Daten für jedes Spiel
+            // Extrahiere die Drittel-Daten für jedes Spiel und die relevanten Felder
             const thirdPeriods = [];
+            const homeTeams = [];
+            const awayTeams = [];
+            const scores = [];
+            const homeLogos = [];
+            const awayLogos = [];
+
+            // Iteriere über alle 8 Felder (home1 bis home8, away1 bis away8, drittel1 bis drittel8)
             for (let i = 1; i <= 8; i++) {
-                if (game[`drittel${i}`]) {
-                    thirdPeriods.push(game[`drittel${i}`]);
+                if (game[`home${i}`] && game[`away${i}`] && game[`score${i}`]) {
+                    homeTeams.push(game[`home${i}`]);
+                    awayTeams.push(game[`away${i}`]);
+                    scores.push(game[`score${i}`].split(" ")[0] + " - " + game[`score${i}`].split(" ")[1].replace('(', ''));
+                    awayLogos.push(game[`awayimage${i}`]);
+                    homeLogos.push(game[`homeimage${i}`]);
+                    if (game[`drittel${i}`]) {
+                        thirdPeriods.push(game[`drittel${i}`]);
+                    }
                 }
             }
 
             return {
-                homeTeam: game.home1,
-                awayTeam: game.away1,
-                homeScore: game.score1.split(" ")[0],  // z.B. 4
-                awayScore: game.score1.split(" ")[1].replace('(', ''),  // z.B. 3
-                homeLogo: game.homeimage1,
-                awayLogo: game.awayimage1,
-                gameTime: thirdPeriods.join(', ') || 'Spiel noch nicht gestartet',  // Zeigt alle Drittel an
+                homeTeams: homeTeams.join(', '),
+                awayTeams: awayTeams.join(', '),
+                scores: scores.join(', '),
+                gameTime: thirdPeriods.join(', ') || 'Spiel noch nicht gestartet',
+                homeLogos: homeLogos.join(', '),
+                awayLogos: awayLogos.join(', ')
             };
         });
 
