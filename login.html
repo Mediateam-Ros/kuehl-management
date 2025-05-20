@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login – Spielmanagementsystem</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCFhS0aAgq0RQdgncI1lD1adbyVHGDgmcI",
+      authDomain: "videowand-43140.firebaseapp.com",
+      projectId: "videowand-43140",
+      storageBucket: "videowand-43140.appspot.com",
+      messagingSenderId: "777250256351",
+      appId: "1:777250256351:web:f0700b48c645037c82006a",
+      measurementId: "G-J4M95HG9C8"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    document.getElementById("login-form").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      const messageEl = document.getElementById("login-message");
+      messageEl.textContent = "";
+      messageEl.classList.add("hidden");
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        window.location.href = "admin.html"; // Redirect nach erfolgreichem Login
+      } catch (error) {
+        let message = "Fehler beim Login. Bitte überprüfe deine Eingaben.";
+        if (error.code === "auth/user-not-found") message = "Benutzer nicht gefunden.";
+        else if (error.code === "auth/wrong-password") message = "Falsches Passwort.";
+        else if (error.code === "auth/invalid-email") message = "Ungültige E-Mail-Adresse.";
+
+        messageEl.textContent = message;
+        messageEl.classList.remove("hidden");
+      }
+    });
+  </script>
+</head>
+<body class="bg-gradient-to-br from-blue-100 via-white to-blue-200 min-h-screen flex items-center justify-center px-4">
+  <div class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
+    <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">🔐 Login</h1>
+    <form id="login-form" class="space-y-5">
+      <div>
+        <label for="email" class="block text-sm font-medium text-gray-700">E-Mail-Adresse</label>
+        <input type="email" id="email" required
+               class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400" />
+      </div>
+      <div>
+        <label for="password" class="block text-sm font-medium text-gray-700">Passwort</label>
+        <input type="password" id="password" required
+               class="w-full mt-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400" />
+      </div>
+      <button type="submit"
+              class="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition font-semibold">
+        Einloggen
+      </button>
+      <p id="login-message" class="text-center text-sm text-red-500 hidden"></p>
+    </form>
+    <p class="text-xs text-gray-400 text-center mt-6">© 2025 Spielmanagementsystem</p>
+  </div>
+</body>
+</html>

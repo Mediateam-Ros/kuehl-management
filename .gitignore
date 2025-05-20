@@ -1,0 +1,40 @@
+# Node modules (falls du Node verwendest)
+node_modules/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Build output (falls du einen Build-Prozess hast)
+dist/
+build/
+
+# Umgebungsdateien mit sensiblen Daten
+.env
+.env.local
+.env.*.local
+
+# Firebase Cache und lokale Dateien
+.firebase/
+firestore.indexes.json
+firestore.rules
+storage.rules
+
+# MacOS Dateien
+.DS_Store
+
+# Windows Dateien
+Thumbs.db
+ehthumbs.db
+
+# VSCode Einstellungen (optional)
+.vscode/
+
+# IDE Dateien (optional)
+*.idea/
+*.iml
+
+# Sonstiges
+*.swp
+*.swo
