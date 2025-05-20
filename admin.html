@@ -27,10 +27,10 @@
 
     <!-- Tabs -->
     <div class="flex gap-4 mb-4 border-b">
-      <button id="tab-games" data-tab="games"
+      <button data-tab="games"
         class="tab active px-4 py-2 text-blue-600 border-b-2 border-blue-600 font-medium">Spiele</button>
-      <button id="tab-players" data-tab="players"
-        class="tab px-4 py-2 text-gray-600 hover:text-blue-600">Spieler</button>
+      <button data-tab="players" class="tab px-4 py-2 text-gray-600 hover:text-blue-600">Spieler</button>
+      <button data-tab="lineup" class="tab px-4 py-2 text-gray-600 hover:text-blue-600">Aufstellung</button>
     </div>
 
     <!-- Spiele-Inhalte -->
@@ -54,6 +54,32 @@
       </div>
 
       <div id="player-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4"></div>
+    </div>
+  </div>
+
+  <!-- Aufstellung -->
+  <div data-tab-content="lineup" class="hidden space-y-6">
+    
+    <div id="lineup-sections" class="space-y-6"></div>
+
+    <div class="mt-4 flex justify-end">
+      <button id="save-lineup" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Aufstellung
+        speichern</button>
+    </div>
+  </div>
+
+  <!-- MODAL: Spieler hinzufügen -->
+  <div id="lineup-modal" class="modal fixed inset-0 bg-black bg-opacity-50 justify-center items-center z-50 hidden">
+    <div class="bg-white p-6 rounded-xl shadow max-w-lg w-full space-y-4">
+      <h2 class="text-xl font-bold">Spieler zur Rolle hinzufügen</h2>
+      <form id="lineup-modal-form" class="space-y-3">
+        <select id="lineup-player-select" required class="w-full border p-2 rounded"></select>
+        <input type="hidden" id="lineup-role-hidden" />
+        <div class="flex justify-between">
+          <button type="button" id="cancel-lineup-modal" class="text-gray-600 hover:underline">Abbrechen</button>
+          <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Hinzufügen</button>
+        </div>
+      </form>
     </div>
   </div>
 

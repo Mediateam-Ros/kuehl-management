@@ -1,7 +1,7 @@
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import {
-  getDatabase, ref, get, child, push, update, remove
+  getDatabase, ref, get, child, push, update, remove, set
 } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 import {
   getAuth, onAuthStateChanged, signOut
@@ -199,8 +199,24 @@ gameForm.addEventListener("submit", async (e) => {
   if (editId) {
     await update(ref(db, "stadiums/" + editId), data);
   } else {
-    await push(ref(db, "stadiums"), data);
+    // Hole alle bestehenden Spiel-IDs und finde die höchste numerische
+    const snap = await get(child(ref(db), "stadiums"));
+    let nextId = 1;
+
+    if (snap.exists()) {
+      const all = snap.val();
+      const numericIds = Object.keys(all)
+        .map(id => parseInt(id))
+        .filter(n => !isNaN(n))
+        .sort((a, b) => b - a);
+      if (numericIds.length > 0) {
+        nextId = numericIds[0] + 1;
+      }
+    }
+
+    await set(ref(db, "stadiums/" + nextId), data);
   }
+
   gameModal.classList.remove("active");
   await loadGames();
 });
@@ -313,3 +329,131 @@ logoutBtn.addEventListener("click", async () => {
   await signOut(auth);
   location.href = "login.html";
 });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const lineupSections = document.getElementById("lineup-sections");
+const lineupModal = document.getElementById("lineup-modal");
+const lineupModalForm = document.getElementById("lineup-modal-form");
+const lineupPlayerSelect = document.getElementById("lineup-player-select");
+const lineupRoleHidden = document.getElementById("lineup-role-hidden");
+const cancelLineupModalBtn = document.getElementById("cancel-lineup-modal");
+
+
+const lineupRoles = ["Torhüter", "Verteidiger", "Stürmer", "Trainer"];
+let currentLineup = []; // wird aus Firebase geladen
+
+async function loadLineup() {
+  const snap = await get(child(ref(db), `aufstellungHeim`));
+  if (snap.exists()) {
+    currentLineup = snap.val();
+  } else {
+    currentLineup = [];
+  }
+
+  loadPlayAufstellung();
+}
+
+async function loadPlayAufstellung() {
+  const snap = await get(child(ref(db), "players"));
+  if (snap.exists()) {
+    allPlayers = snap.val();
+    renderLineup(allPlayers)
+  }
+}
+
+function renderLineup(allPlayers) {
+  lineupSections.innerHTML = "";
+
+  lineupRoles.forEach(role => {
+    const container = document.createElement("div");
+    container.className = "bg-white rounded-xl shadow p-4 border";
+
+    const assigned = currentLineup.filter(p => p.role === role);
+
+    container.innerHTML = `
+      <div class="flex justify-between items-center mb-3">
+        <h3 class="text-lg font-semibold text-gray-800">${role}</h3>
+        <button class="text-blue-600 hover:underline" data-role="${role}" onclick="openLineupModal('${role}')">+ Spieler</button>
+      </div>
+      <ul class="space-y-1" id="list-${role}">
+        ${assigned.map(p => {
+      const player = allPlayers?.[p.playerId] || {};
+
+      const fullName = `${player.firstName || "?"} ${player.lastName || ""}`.trim();
+
+      return `
+            <li class="flex justify-between items-center bg-gray-50 px-3 py-2 rounded">
+              <span>${player.number} - ${fullName}</span>
+              <button onclick="removeFromLineup('${p.playerId}')" class="text-red-500 hover:text-red-700">✕</button>
+            </li>
+          `;
+    }).join("")}
+      </ul>
+    `;
+
+    lineupSections.appendChild(container);
+  });
+}
+
+
+window.openLineupModal = (role) => {
+  lineupRoleHidden.value = role;
+
+  // bereits vergebene Spieler entfernen
+  const usedIds = currentLineup.map(p => p.playerId);
+  lineupPlayerSelect.innerHTML = `<option value="">Spieler wählen</option>` +
+    Object.entries(allPlayers)
+      .filter(([id]) => !usedIds.includes(id))
+      .map(([id, p]) => `<option value="${id}">${p.firstName} ${p.lastName}</option>`)
+      .join("");
+
+  lineupModal.classList.add("active");
+};
+
+
+lineupModalForm.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const playerId = lineupPlayerSelect.value;
+  const role = lineupRoleHidden.value;
+
+  if (!playerId || !role) return;
+
+  currentLineup.push({ playerId, role });
+  lineupModal.classList.remove("active");
+  loadPlayAufstellung();
+});
+
+
+window.removeFromLineup = (playerId) => {
+  currentLineup = currentLineup.filter(p => p.playerId !== playerId);
+  loadPlayAufstellung();
+};
+
+
+cancelLineupModalBtn.addEventListener("click", () => {
+  lineupModal.classList.remove("active");
+});
+
+
+document.getElementById("save-lineup").addEventListener("click", async () => {
+  await update(ref(db, `/`), {
+    aufstellungHeim: currentLineup
+  });
+  alert("Aufstellung gespeichert!");
+});
+
+loadLineup();
