@@ -74,7 +74,7 @@
                     if (game && game.home_team_id === 101 && game.date && game.time) {
                         const gameDateTime = new Date(`${game.date}T${game.time}`);
                         if (gameDateTime >= now) {
-                            if (!nextGame || gameDateTime < new Date(`${nextGame.date}T${nextGame.time}`)) {
+                            if (!nextGame || gameDateTime < new Date(`${nextGame.date}T${nextGame.time}:00`)) {
                                 nextGame = game;
                             }
                         }
