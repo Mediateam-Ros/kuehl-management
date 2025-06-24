@@ -72,10 +72,10 @@
                 // Durchlaufe alle Spiele und finde das nächste Spiel mit home_team_id = 101
                 Object.keys(stadiumsData).forEach(key => {
                     const game = stadiumsData[key];
-                    if (game && game.home_team_id === 101 && game.date && game.time) {
+                    if (game && (game.home_team_id === "101" || game.home_team_id === 101) && game.date && game.time) {
                         const gameDateTime = new Date(`${game.date}T${game.time}`);
                         if (gameDateTime >= now) {
-                            if (!nextGame || gameDateTime < new Date(`${nextGame.date}T${nextGame.time}:00`)) {
+                            if (!nextGame || gameDateTime < new Date(`${nextGame.date}T${nextGame.time}`)) {
                                 nextGame = game;
                             }
                         }
