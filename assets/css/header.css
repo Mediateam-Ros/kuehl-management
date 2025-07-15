@@ -1,0 +1,200 @@
+/* Haupt-Header */
+.main-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+  background-color: #003366; /* Dunkelblau */
+  color: white;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Linke Seite: Logo + Titel */
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.header-logo {
+  height: 40px;
+  width: auto;
+}
+
+.header-title {
+  color: white;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-size: 1.2rem;
+  gap: 20px;
+}
+
+/* Navigation */
+.header-nav {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  position: relative;
+}
+
+/* Navigation Links */
+.nav-link {
+  color: white;
+  text-decoration: none;
+  cursor: pointer;
+  position: relative;
+  font-weight: 600;
+  font-size: 1rem;
+  padding: 8px 12px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease;
+}
+
+.nav-link:hover,
+.nav-link:focus {
+  background-color: #014f86; /* Helleres Blau beim Hover */
+  outline: none;
+}
+
+/* Dropdown Container */
+.nav-dropdown {
+  position: relative;
+}
+
+/* Pfeil bei Dropdown */
+.dropdown-toggle::after {
+  content: " ▼";
+  font-size: 0.7rem;
+}
+
+/* Dropdown Menü */
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #004080;
+  border-radius: 4px;
+  min-width: 150px;
+  z-index: 100;
+  padding: 0.5rem 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+/* Dropdown Items */
+.dropdown-menu .dropdown-item {
+  display: block;
+  padding: 0.5rem 1rem;
+  color: white;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.dropdown-menu .dropdown-item:hover {
+  background-color: #0059b3;
+}
+
+/* Dropdown öffnen bei Hover */
+.nav-dropdown:hover .dropdown-menu {
+  display: block;
+}
+
+/* Logout Link */
+.logout-link {
+  color: white;
+  text-decoration: none;
+  font-weight: bold;
+  cursor: pointer;
+  padding: 8px 12px;
+  border: 1.5px solid white;
+  border-radius: 4px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.logout-link:hover,
+.logout-link:focus {
+  background-color: white;
+  color: #003366;
+  outline: none;
+}
+
+
+
+
+
+
+
+
+
+
+/* Overlay */
+.browser-alert-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  font-family: "Segoe UI", Roboto, sans-serif;
+}
+
+/* Modal Box */
+.browser-alert-box {
+  background-color: #ffffff;
+  padding: 2.5rem;
+  border-radius: 1.2rem;
+  max-width: 420px;
+  width: 90%;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  text-align: center;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Icon */
+.browser-alert-icon {
+  color: #e53935;
+  margin-bottom: 1.2rem;
+}
+
+/* Title */
+.browser-alert-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #222;
+  margin-bottom: 0.6rem;
+}
+
+/* Text */
+.browser-alert-text {
+  font-size: 1rem;
+  color: #555;
+  margin-bottom: 1.8rem;
+}
+
+/* Button */
+.browser-alert-button {
+  background: linear-gradient(135deg, #e53935, #d32f2f);
+  color: #fff;
+  padding: 0.7rem 1.6rem;
+  font-size: 1rem;
+  font-weight: 500;
+  border: none;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  transition: background 0.25s ease;
+}
+
+.browser-alert-button:hover {
+  background: linear-gradient(135deg, #c62828, #b71c1c);
+}
+
+/* Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
