@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin-Dashboard</title>
+  <link rel="stylesheet" href="/assets/css/admin.css" />
+  <link rel="stylesheet" href="/assets/css/footer.css" />
+  <link rel="stylesheet" href="/assets/css/header.css">
+</head>
+
+<body>
+  <header class="main-header">
+    <div class="header-left">
+      <img src="/assets/img/logo.png" alt="Rostock Piranhas Logo" class="header-logo" />
+      <a href="/admin/index.html" class="header-title">Adminbereich</a>
+    </div>
+    <nav class="header-nav">
+      <a href="/admin/spieler.html" class="nav-link">Spieler</a>
+      <a href="/admin/spiele.html" class="nav-link">Spiele</a>
+
+      <div class="nav-dropdown">
+        <a href="#" class="nav-link dropdown-toggle">Aufstellung</a>
+        <div class="dropdown-menu">
+          <a href="/admin/aufstellung.html?type=heim" class="dropdown-item">Heimteam</a>
+          <a href="/admin/aufstellung.html?type=gast" class="dropdown-item">Gastteam</a>
+          <a href="/admin/aufstellung.html?type=schiedsrichter" class="dropdown-item">Schiedsrichter</a>
+          <a href="/admin/aufstellung.html?type=mediateam" class="dropdown-item">Mediateam</a>
+        </div>
+      </div>
+
+      <div class="nav-dropdown">
+        <a href="#" class="nav-link dropdown-toggle">Statistiken</a>
+        <div class="dropdown-menu">
+          <a href="/admin/statistik.html?type=teamvergleich" class="dropdown-item">Teamvergleich</a>
+          <a href="/admin/statistik.html?type=scorer" class="dropdown-item">Top Scorer</a>
+          <a href="/admin/statistik.html?type=torhüter" class="dropdown-item">Torwartvergleich</a>
+          <a href="/admin/statistik.html?type=spielstatistik" class="dropdown-item">Spielstatistik</a>
+        </div>
+      </div>
+
+      <a href="/admin/vmix.html" class="nav-link">VMix</a>
+    </nav>
+    <a href="#" id="logout-link" class="logout-link">Abmelden</a>
+  </header>
+
+  <main class="admin-dashboard">
+    <section class="welcome">
+      <h2>Willkommen, <span id="user-name">...</span></h2>
+    </section>
+
+    <section class="game-card" id="next-game-card">
+      <p>Lade nächstes Heimspiel...</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-left">
+        <img src="/assets/img/logo.png" alt="Logo" class="footer-logo" />
+        <div>
+          <p>&copy; 2025 Anthony Kühl · <span class="site-name">Mediateam Rostock Piranhas</span></p>
+          <p><a href="https://www.anthony-kuehl.de" target="_blank">www.anthony-kuehl.de</a></p>
+        </div>
+      </div>
+      <div class="footer-links">
+        <a href="https://www.anthony-kuehl.de/impressum.html">Impressum</a>
+        <a href="ttps://www.anthony-kuehl.de/datenschutzhtml">Datenschutz</a>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="/assets/js/dashboard.js"></script>
+  <script type="module" src="/assets/js/auth.js"></script>
+  <script src="/assets/js/browser-check.js" defer></script>
+</body>
+
+</html>

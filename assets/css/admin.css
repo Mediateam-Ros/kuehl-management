@@ -1,0 +1,164 @@
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body, html {
+  font-family: 'Segoe UI', sans-serif;
+  height: 100%;
+  background-color: #f9fafb;
+  color: #1f2937;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.welcome {
+  margin-left: 20px;
+  margin-top: 20px;
+}
+
+/* SPIELCARD */
+.full-width-wrapper {
+  width: 100%;
+  padding: 2rem 1rem;
+}
+
+.match-card {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  background: #ffffff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* BANNER */
+.match-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f1f5f9;
+  padding: 2rem;
+  font-size: 1.8rem;
+  font-weight: bold;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.team {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+  justify-content: center;
+  min-width: 140px;
+}
+
+.team-logo {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  background-color: #e5e7eb;
+  border-radius: 8px;
+  padding: 6px;
+}
+
+.vs {
+  font-size: 2.2rem;
+  color: #1f2937;
+}
+
+/* SPIELDETAILS */
+.card-body {
+  padding: 2rem;
+  background-color: #ffffff;
+}
+
+.card-body p {
+  margin: 0.75rem 0;
+  font-size: 1.1rem;
+  color: #374151;
+}
+
+.card-body p strong {
+  color: #111827;
+  font-weight: 600;
+}
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 768px) {
+  .match-banner {
+    flex-direction: column;
+    padding: 1.5rem;
+    text-align: center;
+  }
+
+  .vs {
+    font-size: 1.8rem;
+    margin: 1rem 0;
+  }
+
+  .card-body {
+    padding: 1.5rem;
+  }
+}
+
+.match-details {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 2rem;
+}
+
+.match-details > div {
+  flex: 1 1 300px;
+}
+
+.referee-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  flex: 1 1 300px;
+}
+
+.referee-group {
+  background-color: #f3f4f6;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.referee-group h4 {
+  margin-bottom: 0.75rem;
+  font-size: 1rem;
+  color: #1f2937;
+}
+
+.referee-row {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.referee-box {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background-color: #ffffff;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  flex: 1 1 180px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.referee-box .icon {
+  width: 22px;
+  height: 22px;
+  color: #6b7280;
+}
