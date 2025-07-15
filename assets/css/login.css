@@ -1,0 +1,139 @@
+/* Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Neuer Hintergrund für Body */
+body, html {
+  height: 100%;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: linear-gradient(135deg, #e0f2fe, #f0f9ff);
+  color: #1e293b;
+}
+
+/* Login-Zentrierung */
+.login-body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0f9ff, #dbeafe);
+}
+
+
+/* Login-Container */
+.login-main {
+  width: 100%;
+  max-width: 420px;
+}
+
+/* Formular-Karte */
+.login-form {
+  background-color: #ffffff;
+  border-radius: 12px;
+  padding: 2rem 2.5rem;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.login-form h2 {
+  text-align: center;
+  font-size: 1.75rem;
+  color: #002b5c;
+  margin-bottom: 1rem;
+}
+
+.login-form p {
+  font-size: 0.95rem;
+  color: #475569;
+  line-height: 1.4;
+}
+
+.login-form label {
+  display: block;
+  margin-top: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  font-size: 0.95rem;
+}
+
+.login-form input {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  margin-top: 0.35rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 1rem;
+  background-color: #f8fafc;
+  transition: all 0.25s ease;
+}
+
+.login-form input:focus {
+  border-color: #2563eb;
+  background-color: #ffffff;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2);
+}
+
+/* Hilfstexte unter Inputs */
+.login-form small {
+  display: block;
+  margin-top: 0.25rem;
+  color: #64748b;
+  font-size: 0.85rem;
+}
+
+/* Button */
+.login-form button {
+  margin-top: 1.8rem;
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #002b5c;
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.login-form button:hover {
+  background-color: #014f86;
+}
+
+/* Fehlermeldung */
+.login-error {
+  color: #dc2626;
+  margin-top: 1rem;
+  text-align: center;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+/* Link zurück zur Startseite */
+.login-form a {
+  text-decoration: none;
+  color: #2563eb;
+  font-weight: 500;
+  transition: color 0.2s ease;
+}
+
+.login-form a:hover {
+  color: #1d4ed8;
+}
+
+/* Responsive Feinjustierung */
+@media (max-width: 480px) {
+  .login-form {
+    padding: 1.5rem 1.5rem;
+  }
+}
