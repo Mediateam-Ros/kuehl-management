@@ -1,0 +1,104 @@
+/* Grundstil */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body, html {
+  font-family: 'Segoe UI', sans-serif;
+  height: 100%;
+  background-color: #f9fafb;
+  color: #1f2937;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Main */
+main {
+  flex: 1;
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.intro {
+  margin-bottom: 2rem;
+}
+
+.intro h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: #b91c1c;
+}
+
+.support h2 {
+  font-size: 1.3rem;
+  margin-bottom: 1rem;
+}
+
+.contact-card {
+  background-color: white;
+  border-left: 4px solid #b91c1c;
+  padding: 1rem 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.contact-card h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+.contact-card a {
+  color: #b91c1c;
+  text-decoration: none;
+}
+
+.contact-card a:hover {
+  text-decoration: underline;
+}
+
+/* Header */
+header {
+  background-color: #002b5c;
+  padding: 1rem 2rem;
+  color: white;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.header-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  height: 50px;
+  width: auto;
+}
+
+header h1 {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-left: 1rem;
+}
+
+.login-link {
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border: 1px solid white;
+  border-radius: 4px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.login-link:hover {
+  background-color: white;
+  color: #002b5c;
+}
