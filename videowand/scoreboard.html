@@ -109,7 +109,7 @@
 
         async function loadActiveGameData(gameId) {
             try {
-                // Scores für beide Teams holen
+                // ✅ Scores holen
                 const { data: scores, error } = await supabase
                     .from('scores')
                     .select('*')
@@ -120,29 +120,39 @@
                     return;
                 }
 
-                // Suche jeweils den letzten Score für home und away (nach created_at)
+                // ✅ Aktuelle Spielphase laden (nur 1 Eintrag wegen UNIQUE)
+                const { data: periods, error: periodError } = await supabase
+                    .from('periods')
+                    .select('*')
+                    .eq('game_id', gameId)
+                    .order('timestamp', { ascending: false })
+                    .limit(1);
+
+                if (periodError) {
+                    console.error("Fehler beim Laden der Periode:", periodError);
+                }
+
+                // ✅ Letzte Scores nach Timestamp sortieren
                 const homeScores = scores.filter(s => s.team === 'home');
                 const awayScores = scores.filter(s => s.team === 'away');
 
-                // Falls mehrere Einträge, den neuesten nehmen (sortiere absteigend nach created_at)
                 homeScores.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
                 awayScores.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
                 const homeScore = homeScores.length > 0 ? homeScores[0].score : 0;
                 const awayScore = awayScores.length > 0 ? awayScores[0].score : 0;
 
-                // Setze die Werte im HTML
+                // ✅ Anzeige aktualisieren
                 document.getElementById('homeScore').innerText = homeScore;
                 document.getElementById('awayScore').innerText = awayScore;
 
-                // Optional: Period aus irgendeinem Feld, z.B. aus dem Spielobjekt holen
-                // Hier musst du ggf. noch das Spiel laden, um period anzuzeigen
+                const currentPeriod = periods?.[0]?.period_number || "";
+                document.getElementById("third").innerText = formatPeriod(currentPeriod);
 
             } catch (error) {
                 console.error("Fehler beim Laden der Spieldaten:", error);
             }
         }
-
 
         setInterval(loadNextGame, 1000);
         loadNextGame();
