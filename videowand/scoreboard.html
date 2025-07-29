@@ -54,19 +54,13 @@
     <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-database-compat.js"></script>
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyCFhS0aAgq0RQdgncI1lD1adbyVHGDgmcI",
-            authDomain: "videowand-43140.firebaseapp.com",
-            databaseURL: "https://videowand-43140-default-rtdb.europe-west1.firebasedatabase.app/",
-            projectId: "videowand-43140",
-            storageBucket: "videowand-43140.appspot.com",
-            messagingSenderId: "777250256351",
-            appId: "1:777250256351:web:f0700b48c645037c82006a"
-        };
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        const supabaseUrl = 'https://uedocrmntzzxescgmpkw.supabase.co'
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVlZG9jcm1udHp6eGVzY2dtcGt3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc1NTc0NTUsImV4cCI6MjA2MzEzMzQ1NX0.6C6OmnYBouLHTtlOAVoq4JQM-5o9j9YvIadYoKP5DC0'
+
+        const supabase = createClient(supabaseUrl, supabaseKey);;
 
         function formatPeriod(period) {
             switch (period) {
@@ -83,50 +77,75 @@
             }
         }
 
-        async function loadActiveGameData() {
+        async function loadNextGame() {
             try {
-                // Hole alle Spiele (stadiums) aus der Datenbank
-                const stadiumsSnapshot = await database.ref('stadiums').once('value');
-                const stadiums = stadiumsSnapshot.val();
+                const heute = new Date()
+                const heuteISO = heute.toISOString().split('T')[0]  // "2024-05-26"
 
-                if (!stadiums || stadiums.length === 0) {
-                    console.warn('⚠️ Keine Spiele in der Datenbank gefunden.');
+                const { data: spiele, error: spieleError } = await supabase
+                    .from('games')
+                    .select('*')
+                    .eq('home_team_id', 101)
+                    .gte('date', heuteISO)  // heute oder später
+                    .order('date', { ascending: true })
+                    .limit(1)
+
+                if (!spiele) {
+                    document.getElementById("countdown").innerText = "Keine Spieldaten gefunden.";
                     return;
                 }
 
-                // Finde das aktive Spiel für das Team mit home_team_id = 101
-                const activeGame = stadiums.find(game => game.home_team_id === 101 || game.away_team_id === 101);
+                const nextGame = spiele[0];
+                const nextGameDateTime = new Date(`${nextGame.date}T${nextGame.time}`);
 
-                if (!activeGame) {
-                    console.warn('⚠️ Kein aktives Spiel für das Team 101 gefunden.');
-                    return;
-                }
+                loadActiveGameData(nextGame.id)
 
-                console.log('✅ Aktuelles Spiel:', activeGame);
-
-                const gameDate = new Date(`${activeGame.date}T${activeGame.time}:00`);
-
-                // Spielzeit und andere Details
-                const homeScore = activeGame.score?.home ?? 0;
-                const awayScore = activeGame.score?.away ?? 0;
-                const period = activeGame.score?.period ?? "Unbekannt";
-
-                console.log(`🏒 Spiel am: ${gameDate}`);
-                console.log(`Heim: ${homeScore} - Auswärts: ${awayScore}`);
-                console.log(`Periode: ${period}`);
-
-                // Anzeigen im HTML
-                document.getElementById('homeScore').innerText = homeScore;
-                document.getElementById('awayScore').innerText = awayScore;
-                document.getElementById('third').innerText = formatPeriod(period);
-
-            } catch (error) {
-                console.error('Fehler beim Laden der Spieldaten:', error);
+                console.log(spiele)
+            } catch (spieleError) {
+                console.error('Fehler beim Laden der Spieldaten:', spieleError);
+                document.getElementById("countdown").innerText = 'Fehler';
             }
         }
 
-        setInterval(loadActiveGameData, 1000);
-        loadActiveGameData();
+        async function loadActiveGameData(gameId) {
+            try {
+                // Scores für beide Teams holen
+                const { data: scores, error } = await supabase
+                    .from('scores')
+                    .select('*')
+                    .eq('game_id', gameId);
+
+                if (error) {
+                    console.error("Fehler beim Laden der Scores:", error);
+                    return;
+                }
+
+                // Suche jeweils den letzten Score für home und away (nach created_at)
+                const homeScores = scores.filter(s => s.team === 'home');
+                const awayScores = scores.filter(s => s.team === 'away');
+
+                // Falls mehrere Einträge, den neuesten nehmen (sortiere absteigend nach created_at)
+                homeScores.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+                awayScores.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+                const homeScore = homeScores.length > 0 ? homeScores[0].score : 0;
+                const awayScore = awayScores.length > 0 ? awayScores[0].score : 0;
+
+                // Setze die Werte im HTML
+                document.getElementById('homeScore').innerText = homeScore;
+                document.getElementById('awayScore').innerText = awayScore;
+
+                // Optional: Period aus irgendeinem Feld, z.B. aus dem Spielobjekt holen
+                // Hier musst du ggf. noch das Spiel laden, um period anzuzeigen
+
+            } catch (error) {
+                console.error("Fehler beim Laden der Spieldaten:", error);
+            }
+        }
+
+
+        setInterval(loadNextGame, 1000);
+        loadNextGame();
     </script>
 
 </body>
