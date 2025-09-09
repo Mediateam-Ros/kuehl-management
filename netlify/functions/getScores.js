@@ -4,7 +4,7 @@ const axios = require('axios');
 exports.handler = async function(event, context) {
     try {
         // Hole die Live-Spieldaten von der externen API
-        const response = await axios.get('https://www.sprade.tv/tools/scoreboard/livescore_oln.json');
+        const response = await axios.get('https://api.sprade.tv/tools/scoreboard/livescore_oln.json');
         const gamesData = response.data;
 
         // Gib die erhaltenen Spieldaten direkt als JSON zurück
