@@ -71,6 +71,8 @@
             const response = await fetch('/.netlify/functions/getScores');
             const gamesData = await response.json();
 
+            console.log(gamesData)
+
             if (!gamesData || gamesData.length === 0) {
                 document.getElementById("livescore").innerText = "Keine aktiven Spiele verfügbar.";
                 return;
