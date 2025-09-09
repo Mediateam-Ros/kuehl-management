@@ -65,51 +65,64 @@
     <div id="livescore">Lädt...</div>
 
     <script>
-    async function loadGames() {
-        try {
-            // Hole die Spieldaten von der Netlify-Funktion
-            const response = await fetch('/.netlify/functions/getScores');
-            const gamesData = await response.json();
+        async function loadGames() {
+            try {
+                const response = await fetch('/.netlify/functions/getScores');
+                const gamesData = await response.json();
 
-            console.log(gamesData)
+                if (!gamesData || gamesData.length === 0) {
+                    document.getElementById("livescore").innerText = "Keine aktiven Spiele verfügbar.";
+                    return;
+                }
 
-            if (!gamesData || gamesData.length === 0) {
-                document.getElementById("livescore").innerText = "Keine aktiven Spiele verfügbar.";
-                return;
-            }
+                const gameObj = gamesData[0];  // Erstes (und einziges) Objekt im Array
+                const livescoreContainer = document.getElementById("livescore");
+                livescoreContainer.innerHTML = '';
 
-            const livescoreContainer = document.getElementById("livescore");
-            livescoreContainer.innerHTML = '';
+                // Spiele 1 bis 8 durchgehen
+                for (let i = 1; i <= 8; i++) {
+                    if (gameObj[`home${i}`]) {  // Wenn homeX nicht leer ist
+                        const homeTeam = gameObj[`home${i}`];
+                        const awayTeam = gameObj[`away${i}`];
+                        const score = gameObj[`score${i}`];
+                        const drittel = gameObj[`drittel${i}`];
+                        const homeImg = gameObj[`homeimage${i}`];
+                        const awayImg = gameObj[`awayimage${i}`];
 
-            // Spieldaten anzeigen
-            gamesData.forEach((game, index) => {
-                const gameElement = document.createElement("div");
-                gameElement.classList.add("game-card");
-                gameElement.innerHTML = `
+                        const gameElement = document.createElement("div");
+                        gameElement.classList.add("game-card");
+                        gameElement.innerHTML = `
                     <div class="game-container">
-                        <div class="game-header">
-                            <img src="${game.homeimage1}" class="team-logo" alt="${game.home1} Logo">
-                            <span class="game-time">${game.drittel1 || "Spiel noch nicht gestartet"}</span>
-                            <img src="${game.awayimage1}" class="team-logo" alt="${game.away1} Logo">
+                        <div class="game-header" style="display:flex; align-items:center; justify-content:center; gap: 20px;">
+                            <img src="${homeImg}" class="team-logo" alt="${homeTeam} Logo">
+                            <div>
+                                <div style="font-weight:bold; font-size: 24px;">${homeTeam} vs ${awayTeam}</div>
+                                <div class="game-time">${drittel || "Spiel noch nicht gestartet"}</div>
+                            </div>
+                            <img src="${awayImg}" class="team-logo" alt="${awayTeam} Logo">
                         </div>
                         <div class="game-details">
-                            <span class="team-score">${game.score1}</span>
+                            <span class="team-score">${score}</span>
                         </div>
                     </div>
                 `;
 
-                // Appendi das Spiel ins Container-Element
-                livescoreContainer.appendChild(gameElement);
-            });
-        } catch (error) {
-            console.error('Fehler beim Laden der Spieldaten:', error);
-            document.getElementById("livescore").innerText = "Fehler beim Laden der Spieldaten.";
-        }
-    }
+                        livescoreContainer.appendChild(gameElement);
+                    }
+                }
 
-    setInterval(loadGames, 10000);  // Alle 10 Sekunden neu laden
-    loadGames();  // Initialer Abruf der Daten
-</script>
+                if (livescoreContainer.innerHTML === '') {
+                    livescoreContainer.innerText = "Keine aktiven Spiele verfügbar.";
+                }
+            } catch (error) {
+                console.error('Fehler beim Laden der Spieldaten:', error);
+                document.getElementById("livescore").innerText = "Fehler beim Laden der Spieldaten.";
+            }
+        }
+
+        setInterval(loadGames, 10000);  // Alle 10 Sekunden neu laden
+        loadGames();  // Initialer Abruf der Daten
+    </script>
 </body>
 
 </html>
