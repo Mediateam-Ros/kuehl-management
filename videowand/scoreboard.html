@@ -69,9 +69,9 @@
                 case "overtime": return "OT";
                 case "penalty": return "SO";
                 case "1_pause":
-                case "2_pause":
-                case "endstand":
-                    return "";
+                case "2_pause": 
+                    return "Pause";
+                case "endstand": return "Endstand";
                 default: return period || "";
             }
         }
@@ -105,7 +105,7 @@
                 // Erste Aktualisierung sofort
                 updateGameData();
 
-                // Danach alle 5 Sekunden wiederholen
+                // Danach alle 2 Sekunden wiederholen
                 setInterval(updateGameData, 2000);
 
             } catch (err) {
