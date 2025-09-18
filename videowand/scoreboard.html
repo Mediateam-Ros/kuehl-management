@@ -51,16 +51,15 @@
     </div>
     <div id="third"></div>
 
-    <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.1.0/firebase-database-compat.js"></script>
-
     <script type="module">
         import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
         const supabaseUrl = 'https://uedocrmntzzxescgmpkw.supabase.co'
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVlZG9jcm1udHp6eGVzY2dtcGt3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc1NTc0NTUsImV4cCI6MjA2MzEzMzQ1NX0.6C6OmnYBouLHTtlOAVoq4JQM-5o9j9YvIadYoKP5DC0'
 
-        const supabase = createClient(supabaseUrl, supabaseKey);;
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        let activeGameId = null;
 
         function formatPeriod(period) {
             switch (period) {
@@ -77,54 +76,63 @@
             }
         }
 
-        async function loadNextGame() {
+        async function initGame() {
             try {
-                const heute = new Date()
-                const heuteISO = heute.toISOString().split('T')[0]  // "2024-05-26"
+                const heute = new Date();
+                const heuteISO = heute.toISOString().split('T')[0]; // "2025-09-18"
 
-                const { data: spiele, error: spieleError } = await supabase
+                const { data: spiele, error } = await supabase
                     .from('games')
                     .select('*')
                     .eq('home_team_id', 101)
                     .gte('date', heuteISO)  // heute oder später
                     .order('date', { ascending: true })
-                    .limit(1)
+                    .limit(1);
 
-                if (!spiele) {
-                    document.getElementById("countdown").innerText = "Keine Spieldaten gefunden.";
+                if (error) {
+                    console.error("Fehler beim Laden des Spiels:", error);
+                    return;
+                }
+
+                if (!spiele || spiele.length === 0) {
+                    document.getElementById("third").innerText = "Kein Spiel gefunden";
                     return;
                 }
 
                 const nextGame = spiele[0];
-                const nextGameDateTime = new Date(`${nextGame.date}T${nextGame.time}`);
+                activeGameId = nextGame.id;
 
-                loadActiveGameData(nextGame.id)
+                // Erste Aktualisierung sofort
+                updateGameData();
 
-                console.log(spiele)
-            } catch (spieleError) {
-                console.error('Fehler beim Laden der Spieldaten:', spieleError);
-                document.getElementById("countdown").innerText = 'Fehler';
+                // Danach alle 5 Sekunden wiederholen
+                setInterval(updateGameData, 2000);
+
+            } catch (err) {
+                console.error("Fehler bei initGame:", err);
             }
         }
 
-        async function loadActiveGameData(gameId) {
+        async function updateGameData() {
+            if (!activeGameId) return;
+
             try {
                 // ✅ Scores holen
-                const { data: scores, error } = await supabase
+                const { data: scores, error: scoreError } = await supabase
                     .from('scores')
                     .select('*')
-                    .eq('game_id', gameId);
+                    .eq('game_id', activeGameId);
 
-                if (error) {
-                    console.error("Fehler beim Laden der Scores:", error);
+                if (scoreError) {
+                    console.error("Fehler beim Laden der Scores:", scoreError);
                     return;
                 }
 
-                // ✅ Aktuelle Spielphase laden (nur 1 Eintrag wegen UNIQUE)
+                // ✅ Perioden holen
                 const { data: periods, error: periodError } = await supabase
                     .from('periods')
                     .select('*')
-                    .eq('game_id', gameId)
+                    .eq('game_id', activeGameId)
                     .order('timestamp', { ascending: false })
                     .limit(1);
 
@@ -132,7 +140,7 @@
                     console.error("Fehler beim Laden der Periode:", periodError);
                 }
 
-                // ✅ Letzte Scores nach Timestamp sortieren
+                // ✅ Scores sortieren & letzten Wert nehmen
                 const homeScores = scores.filter(s => s.team === 'home');
                 const awayScores = scores.filter(s => s.team === 'away');
 
@@ -149,15 +157,14 @@
                 const currentPeriod = periods?.[0]?.period_number || "";
                 document.getElementById("third").innerText = formatPeriod(currentPeriod);
 
-            } catch (error) {
-                console.error("Fehler beim Laden der Spieldaten:", error);
+            } catch (err) {
+                console.error("Fehler bei updateGameData:", err);
             }
         }
 
-        setInterval(loadNextGame, 1000);
-        loadNextGame();
+        // Start
+        initGame();
     </script>
 
 </body>
-
 </html>
