@@ -63,7 +63,7 @@
 </head>
 
 <body>
-    <div id="livescore">Lädt...</div>
+    <div id="livescore"></div>
 
     <script>
         async function loadGames() {
@@ -119,8 +119,6 @@
                 document.getElementById("livescore").innerText = "Fehler beim Laden der Spieldaten.";
             }
         }
-
-        setInterval(loadGames, 10000);  // Alle 10 Sekunden neu laden
         loadGames();  // Initialer Abruf der Daten
     </script>
 </body>
