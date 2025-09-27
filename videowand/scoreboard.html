@@ -69,7 +69,7 @@
                 case "overtime": return "OT";
                 case "penalty": return "SO";
                 case "1_pause":
-                case "2_pause": 
+                case "2_pause":
                     return "Pause";
                 case "endstand": return "Endstand";
                 default: return period || "";
@@ -79,13 +79,13 @@
         async function initGame() {
             try {
                 const heute = new Date();
-                const heuteISO = heute.toISOString().split('T')[0]; // "2025-09-18"
+                const heuteISO = heute.toISOString().split('T')[0];
 
                 const { data: spiele, error } = await supabase
                     .from('games')
                     .select('*')
                     .eq('home_team_id', 101)
-                    .gte('date', heuteISO)  // heute oder später
+                    .gte('date', heuteISO)
                     .order('date', { ascending: true })
                     .limit(1);
 
@@ -102,12 +102,11 @@
                 const nextGame = spiele[0];
                 activeGameId = nextGame.id;
 
-                // Erste Aktualisierung sofort
+                // Erste Daten laden
                 updateGameData();
 
-                // Danach alle 2 Sekunden wiederholen
-                setInterval(updateGameData, 2000);
-
+                // Realtime-Listener starten
+                subscribeRealtime();
             } catch (err) {
                 console.error("Fehler bei initGame:", err);
             }
@@ -160,6 +159,32 @@
             } catch (err) {
                 console.error("Fehler bei updateGameData:", err);
             }
+        }
+
+        function subscribeRealtime() {
+            if (!activeGameId) return;
+
+            // Scores Realtime
+            supabase.channel('scores_channel')
+                .on('postgres_changes',
+                    { event: '*', schema: 'public', table: 'scores', filter: `game_id=eq.${activeGameId}` },
+                    payload => {
+                        console.log("Score Update:", payload);
+                        updateGameData();
+                    }
+                )
+                .subscribe();
+
+            // Periods Realtime
+            supabase.channel('periods_channel')
+                .on('postgres_changes',
+                    { event: '*', schema: 'public', table: 'periods', filter: `game_id=eq.${activeGameId}` },
+                    payload => {
+                        console.log("Period Update:", payload);
+                        updateGameData();
+                    }
+                )
+                .subscribe();
         }
 
         // Start
