@@ -57,6 +57,7 @@
                     .eq('home_team_id', 101)
                     .gte('date', heuteISO)  // heute oder später
                     .order('date', { ascending: true })
+                    .order('time', { ascending: true })
                     .limit(1)
 
                 if (!spiele) {
