@@ -70,8 +70,8 @@
                 startCountdown(nextGameDateTime);
 
                 console.log(spiele)
-            } catch (spieleError) {
-                console.error('Fehler beim Laden der Spieldaten:', spieleError);
+            } catch (err) {
+                console.error('Fehler beim Laden der Spieldaten:', err);
                 document.getElementById("countdown").innerText = 'Fehler';
             }
         }
