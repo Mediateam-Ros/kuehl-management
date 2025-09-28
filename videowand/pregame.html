@@ -70,13 +70,15 @@
                 startCountdown(nextGameDateTime);
 
                 console.log(spiele)
-            } catch (err) {
-                console.error('Fehler beim Laden der Spieldaten:', err);
+            } catch (spieleError) {
+                console.error('Fehler beim Laden der Spieldaten:', spieleError);
                 document.getElementById("countdown").innerText = 'Fehler';
             }
         }
 
         function startCountdown(gameDate) {
+            let interval;
+            
             function updateCountdown() {
                 const now = new Date();
                 const timeDifference = Math.max(0, gameDate - now);
@@ -98,7 +100,7 @@
             }
 
             updateCountdown();
-            const interval = setInterval(updateCountdown, 1000);
+            interval = setInterval(updateCountdown, 1000);
         }
 
         loadNextGame();
