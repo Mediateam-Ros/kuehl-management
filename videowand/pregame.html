@@ -57,7 +57,6 @@
                     .eq('home_team_id', 101)
                     .gte('date', heuteISO)  // heute oder später
                     .order('date', { ascending: true })
-                    .order('time', { ascending: true })
                     .limit(1)
 
                 if (!spiele) {
@@ -78,7 +77,7 @@
 
         function startCountdown(gameDate) {
             let interval;
-            
+
             function updateCountdown() {
                 const now = new Date();
                 const timeDifference = Math.max(0, gameDate - now);
