@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="de">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Oberliga Nord – Live Tabelle</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #fff;
+            color: #000;
+            margin: 2rem;
+            max-width: 95%;
+        }
+
+        .card {
+            background: #fff;
+            padding: 1rem;
+            border: 2px solid #000;
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 1.2rem;
+        }
+
+        th {
+            font-size: 35px;
+        }
+
+        td {
+            font-size: 40px;
+        }
+
+        th,
+        td {
+            padding: 10px 8px;
+            text-align: left;
+            border-bottom: 1px solid #000;
+        }
+
+        th {
+            background: #eee;
+            font-weight: 700;
+        }
+
+        tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+
+        tr:hover {
+            background: #ddd;
+        }
+
+        .last-updated {
+            font-size: 35px;
+            color: #555;
+            text-align: center;
+            margin-top: 0.5rem;
+        }
+
+        .highlight {
+            background-color: #dc2626;
+            color: #ffffff;
+            font-weight: bold;
+            /* Gelb hinterlegt für Rostock Piranhas */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="card">
+        <table id="tabelle">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Team</th>
+                    <th>Spiele</th>
+                    <th>Tore</th>
+                    <th>Punkte</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+        <div class="last-updated" id="updated">Letztes Update: --</div>
+    </div>
+
+    <script>
+        const API_URL = "https://api.sprade.tv/v3/scoreboard/tabelle.php?key=b7418730&divisionId=debol_n_hr";
+        const tbody = document.querySelector("#tabelle tbody");
+        const updatedDiv = document.getElementById("updated");
+
+        async function ladeDaten() {
+            try {
+                const res = await fetch(API_URL);
+                if (!res.ok) throw new Error("HTTP " + res.status);
+                const data = await res.json();
+                renderTabelle(data[0]);
+                updatedDiv.textContent = "Letztes Update: " + new Date().toLocaleTimeString();
+            } catch (err) {
+                console.error(err);
+                tbody.innerHTML = "<tr><td colspan='5'>Fehler beim Laden der Daten.</td></tr>";
+            }
+        }
+
+        function renderTabelle(obj) {
+            const teams = [];
+            for (let i = 1; i <= 16; i++) {
+                const name = obj[`teamname${i}`];
+                if (!name || name.trim() === "") continue;
+                teams.push({
+                    pos: i,
+                    name,
+                    spiele: obj[`spiele${i}`],
+                    tore: obj[`tore${i}`],
+                    gtore: obj[`gtore${i}`],
+                    diff: obj[`differenz${i}`],
+                    punkte: obj[`punkte${i}`]
+                });
+            }
+
+            tbody.innerHTML = "";
+            for (const t of teams) {
+                const tr = document.createElement("tr");
+                // Wenn Team "Rostock Piranhas" ist, Klasse highlight hinzufügen
+                const highlight = t.name.toLowerCase().includes("rostock piranhas") ? "highlight" : "";
+                tr.className = highlight;
+                tr.innerHTML = `
+                    <td>${t.pos}</td>
+                    <td>${t.name}</td>
+                    <td>${t.spiele}</td>
+                    <td>${t.tore} : ${t.gtore} (${t.diff >= 0 ? "+" + t.diff : t.diff})</td>
+                    <td>${t.punkte}</td>
+                `;
+                tbody.appendChild(tr);
+            }
+        }
+
+        // Initiales Laden
+        ladeDaten();
+        // Live-Aktualisierung alle 30 Sekunden
+        setInterval(ladeDaten, 30000);
+    </script>
+</body>
+
+</html>
