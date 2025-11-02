@@ -32,7 +32,8 @@
         }
 
         td {
-            font-size: 40px;
+            font-size: 50px;
+            font-weight: bold;
         }
 
         th,
@@ -89,60 +90,111 @@
     </div>
 
     <script>
-        const API_URL = "https://api.sprade.tv/v3/scoreboard/tabelle.php?key=b7418730&divisionId=debol_n_hr";
+        const API_TABELLE = "https://api.sprade.tv/v3/scoreboard/tabelle.php?key=b7418730&divisionId=debol_n_hr";
+        const API_LIVE = "/.netlify/functions/getScores"; // deine Livescore-Funktion
         const tbody = document.querySelector("#tabelle tbody");
         const updatedDiv = document.getElementById("updated");
 
-        async function ladeDaten() {
-            try {
-                const res = await fetch(API_URL);
-                if (!res.ok) throw new Error("HTTP " + res.status);
-                const data = await res.json();
-                renderTabelle(data[0]);
-                updatedDiv.textContent = "Letztes Update: " + new Date().toLocaleTimeString();
-            } catch (err) {
-                console.error(err);
-                tbody.innerHTML = "<tr><td colspan='5'>Fehler beim Laden der Daten.</td></tr>";
-            }
-        }
+        let basisTabelle = []; // Offizielle Tabelle als Basis
 
-        function renderTabelle(obj) {
+        async function ladeBasisTabelle() {
+            const res = await fetch(API_TABELLE);
+            const data = await res.json();
+            const obj = data[0];
             const teams = [];
+
             for (let i = 1; i <= 16; i++) {
                 const name = obj[`teamname${i}`];
                 if (!name || name.trim() === "") continue;
                 teams.push({
-                    pos: i,
                     name,
-                    spiele: obj[`spiele${i}`],
-                    tore: obj[`tore${i}`],
-                    gtore: obj[`gtore${i}`],
-                    diff: obj[`differenz${i}`],
-                    punkte: obj[`punkte${i}`]
+                    spiele: parseInt(obj[`spiele${i}`]),
+                    tore: parseInt(obj[`tore${i}`]),
+                    gtore: parseInt(obj[`gtore${i}`]),
+                    diff: parseInt(obj[`differenz${i}`]),
+                    punkte: parseInt(obj[`punkte${i}`])
                 });
             }
+            basisTabelle = teams;
+            renderTabelle(basisTabelle);
+        }
 
+        async function ladeLivescores() {
+            try {
+                const res = await fetch(API_LIVE);
+                const gamesData = await res.json();
+                if (!gamesData || gamesData.length === 0) return;
+                const games = gamesData[0];
+
+                // Kopie der Basistabelle erstellen
+                let liveTabelle = JSON.parse(JSON.stringify(basisTabelle));
+
+                for (let i = 1; i <= 8; i++) {
+                    const home = games[`home${i}`];
+                    const away = games[`away${i}`];
+                    const score = games[`score${i}`];
+
+                    if (!home || !away || !score.includes(":")) continue;
+
+                    const [homeGoals, awayGoals] = score.split(":").map(Number);
+
+                    const homeTeam = liveTabelle.find(t => t.name.toLowerCase().includes(home.toLowerCase()));
+                    const awayTeam = liveTabelle.find(t => t.name.toLowerCase().includes(away.toLowerCase()));
+
+                    if (!homeTeam || !awayTeam) continue;
+
+                    // Tore und Gegentore live addieren
+                    homeTeam.tore += homeGoals;
+                    homeTeam.gtore += awayGoals;
+                    awayTeam.tore += awayGoals;
+                    awayTeam.gtore += homeGoals;
+
+                    homeTeam.diff = homeTeam.tore - homeTeam.gtore;
+                    awayTeam.diff = awayTeam.tore - awayTeam.gtore;
+
+                    // Punkteverteilung "live"
+                    if (homeGoals > awayGoals) {
+                        homeTeam.punkte += 3;
+                    } else if (homeGoals < awayGoals) {
+                        awayTeam.punkte += 3;
+                    } else {
+                        homeTeam.punkte += 1;
+                        awayTeam.punkte += 1;
+                    }
+                }
+
+                // Sortieren nach Punkten, dann Tordifferenz
+                liveTabelle.sort((a, b) => b.punkte - a.punkte || b.diff - a.diff);
+                renderTabelle(liveTabelle);
+                updatedDiv.textContent = "Letztes Update: " + new Date().toLocaleTimeString();
+            } catch (err) {
+                console.error("Fehler beim Laden der Livescores:", err);
+            }
+        }
+
+        function renderTabelle(teams) {
             tbody.innerHTML = "";
-            for (const t of teams) {
+            teams.forEach((t, index) => {
                 const tr = document.createElement("tr");
-                // Wenn Team "Rostock Piranhas" ist, Klasse highlight hinzufügen
                 const highlight = t.name.toLowerCase().includes("rostock piranhas") ? "highlight" : "";
                 tr.className = highlight;
                 tr.innerHTML = `
-                    <td>${t.pos}</td>
+                    <td>${index + 1}</td>
                     <td>${t.name}</td>
                     <td>${t.spiele}</td>
                     <td>${t.tore} : ${t.gtore} (${t.diff >= 0 ? "+" + t.diff : t.diff})</td>
                     <td>${t.punkte}</td>
                 `;
                 tbody.appendChild(tr);
-            }
+            });
         }
 
-        // Initiales Laden
-        ladeDaten();
-        // Live-Aktualisierung alle 30 Sekunden
-        setInterval(ladeDaten, 30000);
+        // Start
+        (async function init() {
+            await ladeBasisTabelle();
+            await ladeLivescores();
+            setInterval(ladeLivescores, 15000); // alle 15 Sekunden Live-Update
+        })();
     </script>
 </body>
 
