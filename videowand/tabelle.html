@@ -91,11 +91,11 @@
 
     <script>
         const API_TABELLE = "https://api.sprade.tv/v3/scoreboard/tabelle.php?key=b7418730&divisionId=debol_n_hr";
-        const API_LIVE = "/.netlify/functions/getScores"; // deine Livescore-Funktion
+        const API_LIVE = "/.netlify/functions/getScores";
         const tbody = document.querySelector("#tabelle tbody");
         const updatedDiv = document.getElementById("updated");
 
-        let basisTabelle = []; // Offizielle Tabelle als Basis
+        let basisTabelle = [];
 
         async function ladeBasisTabelle() {
             const res = await fetch(API_TABELLE);
@@ -119,6 +119,21 @@
             renderTabelle(basisTabelle);
         }
 
+        function spielGestartet(score, drittel) {
+            if (drittel && drittel.trim() !== "") return true; // Spiel läuft
+            if (!score) return false;
+
+            const match = score.match(/(\d{1,2}):(\d{2})/);
+            if (!match) return false;
+
+            const [_, stunde, minute] = match;
+            const jetzt = new Date();
+            const spielZeit = new Date();
+            spielZeit.setHours(parseInt(stunde), parseInt(minute), 0, 0);
+
+            return jetzt >= spielZeit; // true = Spielzeit erreicht oder vorbei
+        }
+
         async function ladeLivescores() {
             try {
                 const res = await fetch(API_LIVE);
@@ -134,17 +149,22 @@
                     const score = games[`score${i}`];
                     const drittel = games[`drittel${i}`];
 
-                    // Nur Spiele berücksichtigen, die gestartet sind
-                    if (!home || !away || !score.includes(":") || !drittel || drittel.toLowerCase().includes("nicht gestartet")) continue;
+                    if (!home || !away || !spielGestartet(score, drittel)) continue;
 
-                    const [homeGoals, awayGoals] = score.split(":").map(Number);
+                    let homeGoals = 0, awayGoals = 0;
+
+                    if (drittel && drittel.trim() !== "") {
+                        // Tore aus drittel summieren (Format z.B. "0:0,1:2,0:0")
+                        const tore = drittel.split(",").map(t => t.split(":").map(Number));
+                        homeGoals = tore.reduce((sum, t) => sum + t[0], 0);
+                        awayGoals = tore.reduce((sum, t) => sum + t[1], 0);
+                    }
 
                     const homeTeam = liveTabelle.find(t => t.name.toLowerCase().includes(home.toLowerCase()));
                     const awayTeam = liveTabelle.find(t => t.name.toLowerCase().includes(away.toLowerCase()));
-
                     if (!homeTeam || !awayTeam) continue;
 
-                    // Tore und Gegentore live addieren
+                    // Tore live addieren
                     homeTeam.tore += homeGoals;
                     homeTeam.gtore += awayGoals;
                     awayTeam.tore += awayGoals;
@@ -153,7 +173,7 @@
                     homeTeam.diff = homeTeam.tore - homeTeam.gtore;
                     awayTeam.diff = awayTeam.tore - awayTeam.gtore;
 
-                    // Punkteverteilung live
+                    // Punkte live
                     if (homeGoals > awayGoals) {
                         homeTeam.punkte += 3;
                     } else if (homeGoals < awayGoals) {
@@ -189,11 +209,10 @@
             });
         }
 
-        // Start
         (async function init() {
             await ladeBasisTabelle();
             await ladeLivescores();
-            setInterval(ladeLivescores, 15000); // alle 15 Sekunden Live-Update
+            setInterval(ladeLivescores, 15000); // alle 15 Sekunden live
         })();
     </script>
 </body>
