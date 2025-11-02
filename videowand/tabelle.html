@@ -120,18 +120,16 @@
         }
 
         function spielGestartet(score, drittel) {
-            if (drittel && drittel.trim() !== "") return true; // Spiel läuft
-            if (!score) return false;
+            // Drittel vorhanden → Spiel läuft
+            if (drittel && drittel.trim() !== "") return true;
 
-            const match = score.match(/(\d{1,2}):(\d{2})/);
-            if (!match) return false;
+            if (!score || score.trim() === "") return false;
 
-            const [_, stunde, minute] = match;
-            const jetzt = new Date();
-            const spielZeit = new Date();
-            spielZeit.setHours(parseInt(stunde), parseInt(minute), 0, 0);
+            // Enthält "Uhr" → Spiel noch nicht gestartet
+            if (score.toLowerCase().includes("uhr")) return false;
 
-            return jetzt >= spielZeit; // true = Spielzeit erreicht oder vorbei
+            // Sonst Score ist ein Ergebnis → Spiel bereits gelaufen → berücksichtigen
+            return true;
         }
 
         async function ladeLivescores() {
