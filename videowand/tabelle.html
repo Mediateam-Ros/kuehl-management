@@ -126,15 +126,16 @@
                 if (!gamesData || gamesData.length === 0) return;
                 const games = gamesData[0];
 
-                // Kopie der Basistabelle erstellen
                 let liveTabelle = JSON.parse(JSON.stringify(basisTabelle));
 
                 for (let i = 1; i <= 8; i++) {
                     const home = games[`home${i}`];
                     const away = games[`away${i}`];
                     const score = games[`score${i}`];
+                    const drittel = games[`drittel${i}`];
 
-                    if (!home || !away || !score.includes(":")) continue;
+                    // Nur Spiele berücksichtigen, die gestartet sind
+                    if (!home || !away || !score.includes(":") || !drittel || drittel.toLowerCase().includes("nicht gestartet")) continue;
 
                     const [homeGoals, awayGoals] = score.split(":").map(Number);
 
@@ -152,7 +153,7 @@
                     homeTeam.diff = homeTeam.tore - homeTeam.gtore;
                     awayTeam.diff = awayTeam.tore - awayTeam.gtore;
 
-                    // Punkteverteilung "live"
+                    // Punkteverteilung live
                     if (homeGoals > awayGoals) {
                         homeTeam.punkte += 3;
                     } else if (homeGoals < awayGoals) {
@@ -163,7 +164,6 @@
                     }
                 }
 
-                // Sortieren nach Punkten, dann Tordifferenz
                 liveTabelle.sort((a, b) => b.punkte - a.punkte || b.diff - a.diff);
                 renderTabelle(liveTabelle);
                 updatedDiv.textContent = "Letztes Update: " + new Date().toLocaleTimeString();
