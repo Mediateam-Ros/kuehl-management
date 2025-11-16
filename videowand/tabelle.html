@@ -1,10 +1,9 @@
 <!doctype html>
 <html lang="de">
-
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Oberliga Nord – Live Tabelle</title>
+    <title>Oberliga Nord – Live Tabelle (Test JSON)</title>
     <style>
         body {
             font-family: Arial, Helvetica, sans-serif;
@@ -13,68 +12,57 @@
             margin: 2rem;
             max-width: 95%;
         }
-
         .card {
             background: #fff;
             padding: 1rem;
             border: 2px solid #000;
             border-radius: 8px;
         }
-
         table {
             width: 100%;
             border-collapse: collapse;
             font-size: 1.2rem;
         }
-
         th {
-            font-size: 35px;
+            font-size: 36px;
         }
-
         td {
-            font-size: 50px;
-            font-weight: bold;
+            font-size: 60px;
         }
-
-        th,
-        td {
+        th, td {
             padding: 10px 8px;
             text-align: left;
-            border-bottom: 1px solid #000;
+            border: 1px solid #000;
         }
-
         th {
             background: #eee;
             font-weight: 700;
         }
-
         tr:nth-child(even) {
             background: #f9f9f9;
         }
-
         tr:hover {
             background: #ddd;
         }
-
         .last-updated {
-            font-size: 35px;
+            font-size: 16px;
             color: #555;
             text-align: center;
             margin-top: 0.5rem;
         }
-
         .highlight {
-            background-color: #dc2626;
-            color: #ffffff;
+            color: #dc2626;
             font-weight: bold;
-            /* Gelb hinterlegt für Rostock Piranhas */
+        }
+        .small {
+            font-size: 12px;
+            color: #333;
         }
     </style>
 </head>
-
 <body>
     <div class="card">
-        <table id="tabelle">
+        <table id="tabelle" aria-describedby="updated">
             <thead>
                 <tr>
                     <th>#</th>
@@ -90,129 +78,206 @@
     </div>
 
     <script>
+        // BASIS: API für die Ausgangstabelle (kann im Produktivbetrieb bleiben)
         const API_TABELLE = "https://api.sprade.tv/v3/scoreboard/tabelle.php?key=b7418730&divisionId=debol_n_hr";
-        const API_LIVE = "/.netlify/functions/getScores";
+        const API_LIVE_LOCAL = "/.netlify/functions/getScores";
+
         const tbody = document.querySelector("#tabelle tbody");
         const updatedDiv = document.getElementById("updated");
 
         let basisTabelle = [];
 
+        // Lädt die Basis-Tabelle aus der API (sonst setzt eine kleine Fallback-Liste)
         async function ladeBasisTabelle() {
-            const res = await fetch(API_TABELLE);
-            const data = await res.json();
-            const obj = data[0];
-            const teams = [];
-
-            for (let i = 1; i <= 16; i++) {
-                const name = obj[`teamname${i}`];
-                if (!name || name.trim() === "") continue;
-                teams.push({
-                    name,
-                    spiele: parseInt(obj[`spiele${i}`]),
-                    tore: parseInt(obj[`tore${i}`]),
-                    gtore: parseInt(obj[`gtore${i}`]),
-                    diff: parseInt(obj[`differenz${i}`]),
-                    punkte: parseInt(obj[`punkte${i}`])
-                });
+            try {
+                const res = await fetch(API_TABELLE);
+                if (!res.ok) throw new Error("API-Tabelle nicht erreichbar, benutze Fallback.");
+                const data = await res.json();
+                if (!data || !data[0]) throw new Error("API-Tabelle ungültig");
+                const obj = data[0];
+                const teams = [];
+                // Die API liefert teamname1..teamname16 und entsprechende Felder
+                for (let i = 1; i <= 16; i++) {
+                    const name = obj[`teamname${i}`];
+                    if (!name || name.trim() === "") continue;
+                    teams.push({
+                        name: name,
+                        spiele: parseInt(obj[`spiele${i}`]) || 0,
+                        tore: parseInt(obj[`tore${i}`]) || 0,
+                        gtore: parseInt(obj[`gtore${i}`]) || 0,
+                        diff: parseInt(obj[`differenz${i}`]) || 0,
+                        punkte: parseInt(obj[`punkte${i}`]) || 0
+                    });
+                }
+                if (teams.length === 0) throw new Error("Keine Teams von API");
+                basisTabelle = teams;
+            } catch (err) {
+                console.warn("Fehler beim Laden der API-Basis-Tabelle:", err.message);
+                // Fallback (minimal) — so dass die Seite trotzdem etwas anzeigt.
+                basisTabelle = [
+                    { name: "Herforder Ice Dragons", spiele: 0, tore: 0, gtore: 0, diff: 0, punkte: 0 },
+                    { name: "Saale Bulls Halle", spiele: 0, tore: 0, gtore: 0, diff: 0, punkte: 0 },
+                    { name: "Hammer Eisbären", spiele: 0, tore: 0, gtore: 0, diff: 0, punkte: 0 },
+                    { name: "TecArt BlackDragons", spiele: 0, tore: 0, gtore: 0, diff: 0, punkte: 0 },
+                    { name: "Herne Miners", spiele: 0, tore: 0, gtore: 0, diff: 0, punkte: 0 },
+                    { name: "Tilburg Trappers", spiele: 0, tore: 0, gtore: 0, diff: 0, punkte: 0 },
+                    { name: "Füchse Duisburg", spiele: 0, tore: 0, gtore: 0, diff: 0, punkte: 0 },
+                    { name: "KSW IceFighters Leipzig", spiele: 0, tore: 0, gtore: 0, diff: 0, punkte: 0 },
+                    { name: "Rostock Piranhas", spiele: 0, tore: 0, gtore: 0, diff: 0, punkte: 0 },
+                    { name: "Hannover Indians", spiele: 0, tore: 0, gtore: 0, diff: 0, punkte: 0 }
+                ];
             }
-            basisTabelle = teams;
             renderTabelle(basisTabelle);
         }
 
+        // Prüft ob Spiel gestartet/gelaufen ist.
         function spielGestartet(score, drittel) {
-            // Drittel vorhanden → Spiel läuft
-            if (drittel && drittel.trim() !== "") return true;
-
             if (!score || score.trim() === "") return false;
-
-            // Enthält "Uhr" → Spiel noch nicht gestartet
-            if (score.toLowerCase().includes("uhr")) return false;
-
-            // Sonst Score ist ein Ergebnis → Spiel bereits gelaufen → berücksichtigen
-            return true;
+            if (score.toLowerCase().includes("uhr")) return false; // noch nicht begonnen
+            return true; // alles andere zählt als gestartet / gelaufen
         }
 
-        async function ladeLivescores() {
-            try {
-                const res = await fetch(API_LIVE);
-                const gamesData = await res.json();
-                if (!gamesData || gamesData.length === 0) return;
-                const games = gamesData[0];
-
-                let liveTabelle = JSON.parse(JSON.stringify(basisTabelle));
-
-                for (let i = 1; i <= 8; i++) {
-                    const home = games[`home${i}`];
-                    const away = games[`away${i}`];
-                    const score = games[`score${i}`];
-                    const drittel = games[`drittel${i}`];
-
-                    if (!home || !away || !spielGestartet(score, drittel)) continue;
-
-                    let homeGoals = 0, awayGoals = 0;
-
-                    if (drittel && drittel.trim() !== "") {
-                        // Tore aus drittel summieren (Format z.B. "0:0,1:2,0:0")
-                        const tore = drittel.split(",").map(t => t.split(":").map(Number));
-                        homeGoals = tore.reduce((sum, t) => sum + t[0], 0);
-                        awayGoals = tore.reduce((sum, t) => sum + t[1], 0);
-                    }
-
-                    const homeTeam = liveTabelle.find(t => t.name.toLowerCase().includes(home.toLowerCase()));
-                    const awayTeam = liveTabelle.find(t => t.name.toLowerCase().includes(away.toLowerCase()));
-                    if (!homeTeam || !awayTeam) continue;
-
-                    // Tore live addieren
-                    homeTeam.tore += homeGoals;
-                    homeTeam.gtore += awayGoals;
-                    awayTeam.tore += awayGoals;
-                    awayTeam.gtore += homeGoals;
-
-                    homeTeam.diff = homeTeam.tore - homeTeam.gtore;
-                    awayTeam.diff = awayTeam.tore - awayTeam.gtore;
-
-                    // Punkte live
-                    if (homeGoals > awayGoals) {
-                        homeTeam.punkte += 3;
-                    } else if (homeGoals < awayGoals) {
-                        awayTeam.punkte += 3;
-                    } else {
-                        homeTeam.punkte += 1;
-                        awayTeam.punkte += 1;
-                    }
+        // Extrahiert Tore: falls drittel vorhanden -> summiere; sonst aus score (z.B. "4:3 OT")
+        function extrahiereTore(score, drittel) {
+            if (drittel && drittel.trim() !== "" && drittel.includes(":")) {
+                // Format: "0:0,1:2,0:0"
+                try {
+                    const arr = drittel.split(",").map(s => s.split(":").map(x => parseInt(x || "0")));
+                    const home = arr.reduce((sum, cur) => sum + (cur[0] || 0), 0);
+                    const away = arr.reduce((sum, cur) => sum + (cur[1] || 0), 0);
+                    return { home, away };
+                } catch (e) {
+                    return { home: 0, away: 0 };
                 }
+            }
+            // Sonst aus score das Endergebnis extrahieren
+            const m = (score || "").match(/(\d+)\s*:\s*(\d+)/);
+            if (m) {
+                return { home: parseInt(m[1], 10), away: parseInt(m[2], 10) };
+            }
+            return { home: 0, away: 0 };
+        }
 
-                liveTabelle.sort((a, b) => b.punkte - a.punkte || b.diff - a.diff);
-                renderTabelle(liveTabelle);
-                updatedDiv.textContent = "Letztes Update: " + new Date().toLocaleTimeString();
-            } catch (err) {
-                console.error("Fehler beim Laden der Livescores:", err);
+        // Punktevergabe nach Regeln:
+        // - Unentschieden (nur live möglich): 1 / 1
+        // - OT/SO: Sieger 2, Verlierer 1
+        // - Regulärer Sieg: 3 / 0
+        function punkteFuerSpiel(score, homeGoals, awayGoals) {
+            const s = (score || "").toUpperCase();
+            const isOTorSO = s.includes("OT") || s.includes("SO");
+            if (homeGoals === awayGoals) {
+                // live Unentschieden -> beide 1
+                return { home: 1, away: 1 };
+            }
+            if (homeGoals > awayGoals) {
+                return isOTorSO ? { home: 2, away: 1 } : { home: 3, away: 0 };
+            } else {
+                return isOTorSO ? { home: 1, away: 2 } : { home: 0, away: 3 };
             }
         }
 
+        // Rendert die Tabelle in DOM
         function renderTabelle(teams) {
             tbody.innerHTML = "";
-            teams.forEach((t, index) => {
+            teams.forEach((t, idx) => {
                 const tr = document.createElement("tr");
                 const highlight = t.name.toLowerCase().includes("rostock piranhas") ? "highlight" : "";
                 tr.className = highlight;
+                const diff = (t.diff >= 0 ? "+" + t.diff : t.diff);
                 tr.innerHTML = `
-                    <td>${index + 1}</td>
+                    <td>${idx + 1}</td>
                     <td>${t.name}</td>
                     <td>${t.spiele}</td>
-                    <td>${t.tore} : ${t.gtore} (${t.diff >= 0 ? "+" + t.diff : t.diff})</td>
+                    <td>${t.tore} : ${t.gtore} (${diff})</td>
                     <td>${t.punkte}</td>
                 `;
                 tbody.appendChild(tr);
             });
         }
 
+        // Lädt Livescores aus test.json und rechnet sie in die Basis-Tabelle ein
+        async function ladeLivescoresLocal() {
+            try {
+                const res = await fetch(API_LIVE_LOCAL, { cache: "no-store" });
+                if (!res.ok) throw new Error("test.json nicht gefunden");
+                const data = await res.json();
+                if (!data || !data[0]) return;
+
+                const games = data[0];
+
+                // tiefe Kopie der Basis (damit nicht dauerhaft verändert wird)
+                const liveTabelle = JSON.parse(JSON.stringify(basisTabelle));
+
+                // helper: finde Team-Index (case-insensitive, includes)
+                function findeTeam(name) {
+                    if (!name) return null;
+                    const nn = name.toLowerCase().trim();
+                    return liveTabelle.find(t => t.name.toLowerCase().trim() === nn) ||
+                           liveTabelle.find(t => t.name.toLowerCase().includes(nn)) ||
+                           liveTabelle.find(t => nn.includes(t.name.toLowerCase().trim()));
+                }
+
+                for (let i = 1; i <= 8; i++) {
+                    const homeRaw = games[`home${i}`] || "";
+                    const awayRaw = games[`away${i}`] || "";
+                    const scoreRaw = games[`score${i}`] || "";
+                    const drittelRaw = games[`drittel${i}`] || "";
+
+                    if (!homeRaw || !awayRaw) continue;
+                    if (!spielGestartet(scoreRaw, drittelRaw)) continue;
+
+                    const homeTeam = findeTeam(homeRaw);
+                    const awayTeam = findeTeam(awayRaw);
+                    if (!homeTeam || !awayTeam) continue;
+
+                    const tore = extrahiereTore(scoreRaw, drittelRaw);
+                    const homeGoals = tore.home;
+                    const awayGoals = tore.away;
+
+                    // Tore addieren (Annahme: die Basis-Tabelle enthält bisher gespielte Tore; wir addieren das heutige Ergebnis)
+                    homeTeam.tore = (homeTeam.tore || 0) + homeGoals;
+                    homeTeam.gtore = (homeTeam.gtore || 0) + awayGoals;
+                    awayTeam.tore = (awayTeam.tore || 0) + awayGoals;
+                    awayTeam.gtore = (awayTeam.gtore || 0) + homeGoals;
+
+                    // Spiele zählen: falls das Spiel gezählt werden soll (gestartet), inkrementiere Spiele um 1
+                    homeTeam.spiele = (homeTeam.spiele || 0) + 1;
+                    awayTeam.spiele = (awayTeam.spiele || 0) + 1;
+
+                    // Differenz neu
+                    homeTeam.diff = (homeTeam.tore || 0) - (homeTeam.gtore || 0);
+                    awayTeam.diff = (awayTeam.tore || 0) - (awayTeam.gtore || 0);
+
+                    // Punkte
+                    const p = punkteFuerSpiel(scoreRaw, homeGoals, awayGoals);
+                    homeTeam.punkte = (homeTeam.punkte || 0) + p.home;
+                    awayTeam.punkte = (awayTeam.punkte || 0) + p.away;
+                }
+
+                // Sortiere: Punkte desc, dann diff desc, dann Tore desc, dann Name
+                liveTabelle.sort((a,b) => {
+                    if ((b.punkte||0) !== (a.punkte||0)) return (b.punkte||0) - (a.punkte||0);
+                    if ((b.diff||0) !== (a.diff||0)) return (b.diff||0) - (a.diff||0);
+                    if ((b.tore||0) !== (a.tore||0)) return (b.tore||0) - (a.tore||0);
+                    return a.name.localeCompare(b.name);
+                });
+
+                renderTabelle(liveTabelle);
+                updatedDiv.textContent = "Letztes Update: " + new Date().toLocaleTimeString();
+            } catch (err) {
+                console.error("Fehler beim Laden der lokalen Livescores:", err);
+                updatedDiv.textContent = "Letztes Update: Fehler beim Laden der test.json";
+            }
+        }
+
+        // Initialisierung
         (async function init() {
             await ladeBasisTabelle();
-            await ladeLivescores();
-            setInterval(ladeLivescores, 15000); // alle 15 Sekunden live
+            // erstes Laden der Livescores aus test.json
+            await ladeLivescoresLocal();
+            // Intervall für Live-Updates (15s)
+            setInterval(ladeLivescoresLocal, 15000);
         })();
     </script>
 </body>
-
 </html>
