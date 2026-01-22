@@ -1,284 +1,180 @@
 <!DOCTYPE html>
 <html lang="de">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spiel-Panel</title>
-    <style>
-        /* Grundlayout */
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            margin: 0;
-            padding: 0;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 2rem;
-            background-color: #fff;
-            border-radius: 15px;
-            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            justify-content: center;
-        }
-
-        /* Teams Layout */
-        .teams {
-            display: flex;
-            justify-content: space-around;
-            width: 100%;
-            margin-bottom: 3rem;
-        }
-
-        .team {
-            text-align: center;
-            flex: 1;
-        }
-
-        .team img {
-            width: 200px;
-            height: 200px;
-            object-fit: contain;
-            margin-bottom: 1rem;
-        }
-
-        .team h2 {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-        }
-
-        /* Score Buttons */
-        .score-controls {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 2rem;
-        }
-
-        .score-controls button {
-            width: 80px;
-            height: 80px;
-            font-size: 3rem;
-            border-radius: 15px;
-            border: none;
-            cursor: pointer;
-            transition: transform 0.2s;
-        }
-
-        .score-controls button:active {
-            transform: scale(0.9);
-        }
-
-        .score-controls button[data-dir="+"] {
-            background-color: #28a745;
-            color: #fff;
-        }
-
-        .score-controls button[data-dir="-"] {
-            background-color: #dc3545;
-            color: #fff;
-        }
-
-        .score-controls span {
-            font-size: 3rem;
-            font-weight: bold;
-            width: 100px;
-            text-align: center;
-        }
-
-        /* Period dropdown */
-        .period-selection {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
-
-        .period-selection select {
-            font-size: 2rem;
-            padding: 0.5rem 1rem;
-            border-radius: 10px;
-            border: 1px solid #ccc;
-        }
-
-        /* Timer */
-        .timer {
-            text-align: center;
-            font-size: 2rem;
-            font-weight: bold;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spiel-Panel</title>
+<style>
+body { font-family: Arial, sans-serif; background:#f0f0f0; margin:0; padding:0; }
+.container { max-width:1200px; margin:0 auto; padding:2rem; background:#fff; border-radius:15px; box-shadow:0 6px 15px rgba(0,0,0,0.1); display:flex; flex-direction:column; align-items:center; min-height:100vh; justify-content:center; }
+.teams { display:flex; justify-content:space-around; width:100%; margin-bottom:3rem; }
+.team { text-align:center; flex:1; }
+.team img { width:200px; height:200px; object-fit:contain; margin-bottom:1rem; }
+.team h2 { font-size:2rem; margin-bottom:1rem; }
+.score-controls { display:flex; align-items:center; justify-content:center; gap:2rem; }
+.score-controls button { width:80px; height:80px; font-size:3rem; border-radius:15px; border:none; cursor:pointer; transition: transform 0.2s; }
+.score-controls button:active { transform:scale(0.9); }
+.score-controls button[data-dir="+"] { background-color:#28a745; color:#fff; }
+.score-controls button[data-dir="-"] { background-color:#dc3545; color:#fff; }
+.score-controls span { font-size:3rem; font-weight:bold; width:100px; text-align:center; }
+.period-selection { text-align:center; margin-bottom:2rem; }
+.period-selection select { font-size:2rem; padding:0.5rem 1rem; border-radius:10px; border:1px solid #ccc; }
+</style>
 </head>
-
 <body>
-    <div class="container" id="panel">
-        <div class="teams">
-            <div class="team home">
-                <img id="homeLogo" src="" alt="Heimteam Logo">
-                <h2 id="homeName">Heimteam</h2>
-                <div class="score-controls">
-                    <button data-team="home" data-dir="+">+</button>
-                    <span id="homeScore">0</span>
-                    <button data-team="home" data-dir="-">-</button>
-                </div>
-            </div>
-            <div class="team away">
-                <img id="awayLogo" src="" alt="Auswärtsteam Logo">
-                <h2 id="awayName">Auswärtsteam</h2>
-                <div class="score-controls">
-                    <button data-team="away" data-dir="+">+</button>
-                    <span id="awayScore">0</span>
-                    <button data-team="away" data-dir="-">-</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Period selection -->
-        <div class="period-selection">
-            <label for="periodSelect">Periode:</label>
-            <select id="periodSelect"></select>
-        </div>
+<div class="container" id="panel">
+  <div class="teams">
+    <div class="team home">
+      <img id="homeLogo" src="" alt="Heimteam Logo">
+      <h2 id="homeName">Heimteam</h2>
+      <div class="score-controls">
+        <button data-team="home" data-dir="+">+</button>
+        <span id="homeScore">0</span>
+        <button data-team="home" data-dir="-">-</button>
+      </div>
     </div>
+    <div class="team away">
+      <img id="awayLogo" src="" alt="Auswärtsteam Logo">
+      <h2 id="awayName">Auswärtsteam</h2>
+      <div class="score-controls">
+        <button data-team="away" data-dir="+">+</button>
+        <span id="awayScore">0</span>
+        <button data-team="away" data-dir="-">-</button>
+      </div>
+    </div>
+  </div>
+  <div class="period-selection">
+    <label for="periodSelect">Periode:</label>
+    <select id="periodSelect"></select>
+  </div>
+</div>
 
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    <script>
-        // Supabase-Client nur einmal initialisieren
-        if (!window._supabaseClient) {
-            window._supabaseClient = window.supabase.createClient(
-                "https://uedocrmntzzxescgmpkw.supabase.co",
-                "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVlZG9jcm1udHp6eGVzY2dtcGt3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc1NTc0NTUsImV4cCI6MjA2MzEzMzQ1NX0.6C6OmnYBouLHTtlOAVoq4JQM-5o9j9YvIadYoKP5DC0"
-            );
-        }
-        const supabase = window._supabaseClient;
+<!-- Supabase UMD -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.35.0/dist/supabase.min.js"></script>
 
-        const panel = document.getElementById("panel");
-        const homeName = document.getElementById("homeName");
-        const awayName = document.getElementById("awayName");
-        const homeLogo = document.getElementById("homeLogo");
-        const awayLogo = document.getElementById("awayLogo");
-        const periodSelect = document.getElementById("periodSelect");
-        const homeScoreEl = document.getElementById("homeScore");
-        const awayScoreEl = document.getElementById("awayScore");
+<script>
+(function() {
+  // Lokale Variable, um globale Konflikte zu vermeiden
+  const _supabaseClient = window.supabase.createClient(
+    "https://uedocrmntzzxescgmpkw.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVlZG9jcm1udHp6eGVzY2dtcGt3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDc1NTc0NTUsImV4cCI6MjA2MzEzMzQ1NX0.6C6OmnYBouLHTtlOAVoq4JQM-5o9j9YvIadYoKP5DC0"
+  );
 
-        let gameId, period = 1, homeScore = 0, awayScore = 0;
+  const panel = document.getElementById("panel");
+  const homeName = document.getElementById("homeName");
+  const awayName = document.getElementById("awayName");
+  const homeLogo = document.getElementById("homeLogo");
+  const awayLogo = document.getElementById("awayLogo");
+  const periodSelect = document.getElementById("periodSelect");
+  const homeScoreEl = document.getElementById("homeScore");
+  const awayScoreEl = document.getElementById("awayScore");
 
-        const periodMap = {
-            "1_drittel": "1. Drittel", "1_pause": "1. Pause",
-            "2_drittel": "2. Drittel", "2_pause": "2. Pause",
-            "3_drittel": "3. Drittel", "overtime": "Overtime", "penalty": "Shootout"
-        };
+  let gameId, period = "1_drittel", homeScore = 0, awayScore = 0;
 
-        if (!sessionStorage.getItem("selectedGame")) loadGames();
-        else selectGame(sessionStorage.getItem("selectedGame"));
+  const periodMap = {
+    "1_drittel": "1. Drittel",
+    "1_pause": "1. Pause",
+    "2_drittel": "2. Drittel",
+    "2_pause": "2. Pause",
+    "3_drittel": "3. Drittel",
+    "overtime": "Overtime",
+    "penalty": "Shootout"
+  };
 
-        async function loadGames() {
-            const today = new Date().toISOString().split("T")[0];
-            const { data, error } = await supabase
-                .from("games")
-                .select("id,date,venue, home:teams!fk_home_team(*), away:teams!fk_guest_team(*)")
-                .gte("date", today)
-                .order("date", { ascending: true });
+  async function loadGames() {
+    const today = new Date().toISOString().split("T")[0];
+    const { data, error } = await _supabaseClient.from("games")
+      .select("id,date,venue,home:teams!fk_home_team(*),away:teams!fk_guest_team(*)")
+      .gte("date", today)
+      .order("date",{ascending:true});
+    if(error) return console.error(error);
 
-            if (error) { console.error(error); return; }
+    const gameSelect = document.createElement("select");
+    const confirmGame = document.createElement("button");
+    confirmGame.textContent = "Spiel auswählen";
+    document.body.prepend(confirmGame, gameSelect);
 
-            const gameSelect = document.createElement("select");
-            const confirmGame = document.createElement("button");
-            confirmGame.textContent = "Spiel auswählen";
-            document.body.prepend(confirmGame, gameSelect);
+    data.forEach(game=>{
+      const opt = document.createElement("option");
+      opt.value = game.id;
+      opt.textContent = `${game.date || ""} – ${game.venue}`;
+      gameSelect.appendChild(opt);
+    });
 
-            data.forEach(game => {
-                const opt = document.createElement("option");
-                opt.value = game.id;
-                opt.textContent = `${game.date || ""} – ${game.venue}`;
-                gameSelect.appendChild(opt);
-            });
+    confirmGame.onclick = async ()=>{
+      const selected = gameSelect.value;
+      sessionStorage.setItem("selectedGame", selected);
+      await selectGame(selected);
+      gameSelect.remove();
+      confirmGame.remove();
+    };
+  }
 
-            confirmGame.onclick = async () => {
-                const selected = gameSelect.value;
-                sessionStorage.setItem("selectedGame", selected);
-                await selectGame(selected);
-                gameSelect.remove();
-                confirmGame.remove();
-            };
-        }
+  async function selectGame(id){
+    gameId=id;
+    panel.classList.remove("hidden");
 
-        async function selectGame(id) {
-            gameId = id;
-            panel.classList.remove("hidden");
+    const { data: game } = await _supabaseClient.from("games")
+      .select("home:teams!fk_home_team(*),away:teams!fk_guest_team(*)")
+      .eq("id", gameId)
+      .single();
 
-            const { data: game } = await supabase
-                .from("games")
-                .select("home:teams!fk_home_team(*), away:teams!fk_guest_team(*)")
-                .eq("id", gameId)
-                .single();
+    homeName.textContent = game.home.name;
+    homeLogo.src = game.home.logo||"";
+    awayName.textContent = game.away.name;
+    awayLogo.src = game.away.logo||"";
 
-            homeName.textContent = game.home.name;
-            homeLogo.src = game.home.logo || "";
-            awayName.textContent = game.away.name;
-            awayLogo.src = game.away.logo || "";
+    populatePeriodDropdown();
+    await loadState();
+  }
 
-            populatePeriodDropdown();
-            await loadState();
-        }
+  function populatePeriodDropdown(){
+    periodSelect.innerHTML="";
+    Object.entries(periodMap).forEach(([value,label])=>{
+      const opt = document.createElement("option");
+      opt.value=value;
+      opt.textContent=label;
+      periodSelect.appendChild(opt);
+    });
+    periodSelect.value=period;
+    periodSelect.onchange=async ()=>{
+      period=periodSelect.value;
+      await _supabaseClient.from("periods").upsert({game_id:gameId,period_number:period},{onConflict:["game_id"]});
+    };
+  }
 
-        function populatePeriodDropdown() {
-            periodSelect.innerHTML = "";
-            Object.entries(periodMap).forEach(([value, label]) => {
-                const opt = document.createElement("option");
-                opt.value = value;
-                opt.textContent = label;
-                periodSelect.appendChild(opt);
-            });
+  async function loadState(){
+    const { data: p } = await _supabaseClient.from("periods").select("period_number").eq("game_id",gameId).single();
+    period=p?.period_number||"1_drittel";
 
-            periodSelect.value = period;
-            periodSelect.onchange = async () => {
-                period = periodSelect.value;
-                await savePeriodToDB();
-                render();
-            };
-        }
+    const { data: scores } = await _supabaseClient.from("scores").select("team,score").eq("game_id",gameId).order("created_at",{ascending:false});
+    homeScore=scores?.find(s=>s.team==="home")?.score||0;
+    awayScore=scores?.find(s=>s.team==="away")?.score||0;
 
-        async function savePeriodToDB() {
-            const { error } = await supabase
-                .from("periods")
-                .upsert({ game_id: gameId, period_number: period }, { onConflict: ["game_id"] });
-            if (error) console.error("Fehler beim Speichern der Periode:", error);
-        }
+    render();
+  }
 
-        async function loadState() {
-            const { data: p } = await supabase.from("periods").select("period_number").eq("game_id", gameId).single();
-            period = p?.period_number || 1;
+  function render(){
+    periodSelect.value=period;
+    homeScoreEl.textContent=homeScore;
+    awayScoreEl.textContent=awayScore;
+  }
 
-            const { data: scores } = await supabase.from("scores").select("team,score").eq("game_id", gameId).order("created_at", { ascending: false });
-            homeScore = scores?.find(s => s.team === "home")?.score || 0;
-            awayScore = scores?.find(s => s.team === "away")?.score || 0;
+  document.querySelectorAll("[data-team]").forEach(btn=>{
+    btn.onclick=async ()=>{
+      const team=btn.dataset.team;
+      const dir=btn.dataset.dir==="+"?1:-1;
+      if(team==="home") homeScore=Math.max(0,homeScore+dir);
+      else awayScore=Math.max(0,awayScore+dir);
 
-            periodSelect.value = period;
-            render();
-        }
+      await _supabaseClient.from("scores").insert({game_id:gameId,team,score:team==="home"?homeScore:awayScore});
+      render();
+    };
+  });
 
-        function render() {
-            periodSelect.value = period;
-            homeScoreEl.textContent = homeScore;
-            awayScoreEl.textContent = awayScore;
-        }
-
-        document.querySelectorAll("[data-team]").forEach(btn => {
-            btn.onclick = async () => {
-                const team = btn.dataset.team;
-                const dir = btn.dataset.dir === "+" ? 1 : -1;
-
-                if (team === "home") homeScore = Math.max(0, homeScore + dir);
-                else awayScore = Math.max(0, awayScore + dir);
-
-                await supabase.from("scores").insert({ game_id: gameId, team, score: team === "home" ? homeScore : awayScore });
-                render();
-            };
-        });
-    </script>
+  if(!sessionStorage.getItem("selectedGame")) loadGames();
+  else selectGame(sessionStorage.getItem("selectedGame"));
+})();
+</script>
 </body>
 </html>
